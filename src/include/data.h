@@ -56,4 +56,15 @@ size_t linked_list_size(linked_list *list);
  */
 void linked_list_free(linked_list *list);
 
+/**
+ * input:
+ *  An input string to be parsed.
+ *  The input string is modified.
+ * separator:
+ *  The separator character
+ * Returns:
+ *  A linked list of paths
+ */
+linked_list* create_path_list(char *input, char separator);
+
 #endif

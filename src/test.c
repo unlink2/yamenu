@@ -112,10 +112,29 @@ static void test_linked_list(void **state) {
     linked_list_free(p2);
 }
 
+static void test_create_path_list(void **state) {
+    char *pathlist = my_malloc(64);
+    strncpy(pathlist, "Path;Second Path;Third Path", 64);
+
+    const char *expected[] = {"Path", "Second Path", "Third Path"};
+
+    // generate a path list of size 3
+    linked_list *paths = create_path_list(pathlist, ';');
+
+    assert_int_equal(linked_list_size(paths), 3);
+    for (int i = 0; i < linked_list_size(paths); i++) {
+        assert_string_equal(linked_list_get(paths, i)->path, expected[i]);
+    }
+
+    linked_list_free(paths);
+    my_free(pathlist);
+}
+
 int main() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_parse_args),
-        cmocka_unit_test(test_linked_list)
+        cmocka_unit_test(test_linked_list),
+        cmocka_unit_test(test_create_path_list)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

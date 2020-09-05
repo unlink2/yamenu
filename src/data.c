@@ -1,5 +1,6 @@
 #include "include/data.h"
 #include "include/utility.h"
+#include <string.h>
 
 linked_list* linked_list_create(void *initial) {
     linked_list *new_list = my_malloc(sizeof(linked_list));
@@ -60,4 +61,20 @@ void linked_list_free(linked_list *list) {
         list = list->next;
         my_free(to_free);
     }
+}
+
+linked_list* create_path_list(char *input, char separator) {
+    linked_list *head = linked_list_create(input);
+    linked_list *last = head;
+
+    while (input[0] != '\0') {
+        if (input[0] == separator) {
+            input[0] = '\0';
+            last = linked_list_push(last, input+1);
+        }
+
+        input += 1;
+    }
+
+    return head;
 }
