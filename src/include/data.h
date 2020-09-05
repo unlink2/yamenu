@@ -38,6 +38,13 @@ linked_list* linked_list_get(linked_list *list, size_t index);
 linked_list* linked_list_push(linked_list *list, void *newobj);
 
 /**
+ * Pops the last item from a list
+ * Returns:
+ *  A pointer to the last item
+ */
+linked_list* linked_list_pop(linked_list *list);
+
+/**
  * Returns:
  *  size of a list
  */

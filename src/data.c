@@ -29,6 +29,22 @@ linked_list* linked_list_push(linked_list *list, void *newobj) {
     return new_item;
 }
 
+linked_list* linked_list_pop(linked_list *list) {
+    if (!list) {
+        return NULL;
+    } else if (!list->next) {
+        return list;
+    }
+    linked_list *previous;
+    while (list->next) {
+        previous = list;
+        list = list->next;
+    }
+    linked_list *pop = list;
+    previous->next = NULL;
+    return pop;
+}
+
 size_t linked_list_size(linked_list *list) {
     size_t count = 0;
     while (list) {

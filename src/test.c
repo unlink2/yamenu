@@ -79,6 +79,37 @@ static void test_linked_list(void **state) {
     assert_null(linked_list_get(list, 5));
 
     linked_list_free(list);
+
+    // try push and pop
+    assert_null(linked_list_pop(NULL));
+
+    list = linked_list_create("Pop test");
+    linked_list *pheadexpected = linked_list_pop(list);
+    assert_ptr_equal(list, pheadexpected);
+
+    // push some values
+    linked_list *p1expected = linked_list_push(list, "P1");
+    linked_list *p2expected = linked_list_push(list, "P2");
+
+    assert_non_null(p1expected);
+    assert_non_null(p2expected);
+
+    assert_int_equal(linked_list_size(list), 3);
+    linked_list *p2 = linked_list_pop(list);
+    assert_ptr_equal(p2, p2expected);
+    assert_int_equal(linked_list_size(list), 2);
+
+    linked_list *p1 = linked_list_pop(list);
+    assert_ptr_equal(p1, p1expected);
+    assert_int_equal(linked_list_size(list), 1);
+
+    linked_list *phead = linked_list_pop(list);
+    assert_ptr_equal(phead, pheadexpected);
+    assert_int_equal(linked_list_size(list), 1);
+
+    linked_list_free(phead);
+    linked_list_free(p1);
+    linked_list_free(p2);
 }
 
 int main() {
