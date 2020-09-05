@@ -2,6 +2,15 @@
 #include "include/utility.h"
 #include <string.h>
 
+void yamenu_app_free(struct yamenu_app *app) {
+    if (app->path_list) {
+        for (size_t i = 0; i < linked_list_size(app->path_list); i++) {
+            file_path_free(linked_list_get(app->path_list, i)->fp);
+        }
+        linked_list_free(app->path_list);
+    }
+}
+
 linked_list* linked_list_create(void *initial) {
     linked_list *new_list = my_malloc(sizeof(linked_list));
     if (!new_list) {
@@ -64,16 +73,40 @@ void linked_list_free(linked_list *list) {
 }
 
 linked_list* create_path_list(char *input, char separator) {
-    linked_list *head = linked_list_create(input);
+    linked_list *head = linked_list_create(file_path_create(input));
     linked_list *last = head;
 
     while (input[0] != '\0') {
         if (input[0] == separator) {
             input[0] = '\0';
-            last = linked_list_push(last, input+1);
+            last = linked_list_push(last, file_path_create(input+1));
         }
 
         input += 1;
+    }
+
+    return head;
+}
+
+linked_list* filter_path_list(linked_list *list, char *search) {
+    linked_list *head = NULL;
+    linked_list *last = NULL;
+
+
+    // search the whole list
+    // assume that the list only contains paths!
+    while (list) {
+        if (!strstr(list->fp->path, search)) {
+            list = linked_list_get(list, 1);
+            continue;
+        }
+        if (!head) {
+            head = linked_list_create(list->fp);
+            last = head;
+        } else {
+            last = linked_list_push(last, list->fp);
+        }
+        list = linked_list_get(list, 1);
     }
 
     return head;

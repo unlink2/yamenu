@@ -3,8 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
-typedef char* path;
+#include "path.h"
 
 /**
  * Linked list of generic objects
@@ -12,10 +13,24 @@ typedef char* path;
 typedef struct linked_list {
     union {
         void *generic;
-        path path;
+        char *str;
+        file_path *fp;
     };
     struct linked_list *next;
 } linked_list;
+
+/**
+ * Application settings object
+ */
+typedef struct yamenu_app {
+    linked_list *path_list;
+    char *shell;
+    bool nox;
+    char separator;
+    char *input_list; // input for path list parser
+} yamenu_app;
+
+void yamenu_app_free(struct yamenu_app *app);
 
 /**
  * Creates a new path list with
@@ -66,5 +81,15 @@ void linked_list_free(linked_list *list);
  *  A linked list of paths
  */
 linked_list* create_path_list(char *input, char separator);
+
+/**
+ * list:
+ *  The path list
+ * search:
+ *  The search term
+ * returns:
+ *  A new linked list with paths containing the search term
+ */
+linked_list* filter_path_list(linked_list *list, char *search);
 
 #endif

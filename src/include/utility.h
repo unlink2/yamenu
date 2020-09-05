@@ -4,14 +4,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "data.h"
 
-struct arguments {
-    bool nox;
-    char separator;
-    char *path_list;
-};
-
-struct arguments parse_args(int argc, char **argv);
+struct yamenu_app parse_args(int argc, char **argv);
 
 #define DEBUG TRUE
 

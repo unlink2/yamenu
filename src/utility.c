@@ -18,13 +18,13 @@ static struct argp_option options[] = {
 
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
-    struct arguments *arguments = state->input;
+    struct yamenu_app *arguments = state->input;
     switch (key) {
         case 'n':
             arguments->nox = true;
             break;
         case 'p':
-            arguments->path_list = arg;
+            arguments->input_list = arg;
             break;
         case 's':
             if (arg && strlen(arg) == 1) {
@@ -46,14 +46,23 @@ static struct argp argp = {
     doc,
     0, 0, 0};
 
-struct arguments parse_args(int argc, char **argv) {
-    struct arguments arguments;
+struct yamenu_app parse_args(int argc, char **argv) {
+    struct yamenu_app arguments;
 
     arguments.nox = false;
     arguments.separator = ';';
-    arguments.path_list = "";
+    arguments.input_list = "";
+    arguments.path_list = NULL;
+    arguments.shell = "/bin/sh";
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
+
+    // NULL check is required because
+    // an empty input may yield NULL
+    if (arguments.input_list) {
+        arguments.path_list = create_path_list(arguments.input_list, arguments.separator);
+    }
+
     return arguments;
 }
 

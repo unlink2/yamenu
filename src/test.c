@@ -22,11 +22,12 @@ static void test_parse_args(void **state) {
             "-n"
         };
         int argc = 4;
-        struct arguments arguments = parse_args(argc, (char**)argv);
+        struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
-        assert_string_equal(arguments.path_list, "Path1;Path2;Path3");
+        assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
         assert_true(arguments.nox);
         assert_int_equal(arguments.separator, '&');
+        yamenu_app_free(&arguments);
     }
     {
         const char *argv[] = {
@@ -36,22 +37,24 @@ static void test_parse_args(void **state) {
             "--nox"
         };
         int argc = 4;
-        struct arguments arguments = parse_args(argc, (char**)argv);
+        struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
-        assert_string_equal(arguments.path_list, "Path1;Path2;Path3");
+        assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
         assert_true(arguments.nox);
         assert_int_equal(arguments.separator, '&');
+        yamenu_app_free(&arguments);
     }
     {
         const char *argv[] = {
             "./test", // program name
         };
         int argc = 1;
-        struct arguments arguments = parse_args(argc, (char**)argv);
+        struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
-        assert_string_equal(arguments.path_list, "");
+        assert_string_equal(arguments.input_list, "");
         assert_false(arguments.nox);
         assert_int_equal(arguments.separator, ';');
+        yamenu_app_free(&arguments);
     }
 }
 
@@ -72,9 +75,9 @@ static void test_linked_list(void **state) {
     }
 
     assert_int_equal(linked_list_size(list), 4);
-    assert_string_equal(linked_list_get(list, 0)->path, "Hello World");
+    assert_string_equal(linked_list_get(list, 0)->str, "Hello World");
     for (int i = 0; i < itemsc; i++) {
-        assert_string_equal(linked_list_get(list, i+1)->path, items[i]);
+        assert_string_equal(linked_list_get(list, i+1)->str, items[i]);
     }
     assert_null(linked_list_get(list, 5));
 
@@ -123,18 +126,48 @@ static void test_create_path_list(void **state) {
 
     assert_int_equal(linked_list_size(paths), 3);
     for (int i = 0; i < linked_list_size(paths); i++) {
-        assert_string_equal(linked_list_get(paths, i)->path, expected[i]);
+        assert_string_equal(linked_list_get(paths, i)->fp->path, expected[i]);
+        file_path_free(linked_list_get(paths, i)->fp);
     }
 
     linked_list_free(paths);
     my_free(pathlist);
 }
 
+static void test_filter_path_list(void **state) {
+    char *pathlist = my_malloc(64);
+    strncpy(pathlist, "Not Path 1;Filter Path 2;Filter Path 3;Not Path 4", 64);
+
+    // generate a path list of size 3
+    linked_list *paths = create_path_list(pathlist, ';');
+
+
+    assert_int_equal(linked_list_size(paths), 4);
+
+    // filter for the string 'Filter'
+    linked_list *filtered = filter_path_list(paths, "Filter");
+    assert_int_equal(linked_list_size(filtered), 2);
+
+    const char *expected[] = {"Filter Path 2", "Filter Path 3"};
+    for (int i = 0; i < linked_list_size(filtered); i++) {
+        assert_string_equal(linked_list_get(filtered, i)->fp->path, expected[i]);
+    }
+
+    // cleanup
+    for (int i = 0; i < linked_list_size(paths); i++) {
+        file_path_free(linked_list_get(paths, i)->fp);
+    }
+    linked_list_free(paths);
+    my_free(pathlist);
+    linked_list_free(filtered);
+}
+
 int main() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_parse_args),
         cmocka_unit_test(test_linked_list),
-        cmocka_unit_test(test_create_path_list)
+        cmocka_unit_test(test_create_path_list),
+        cmocka_unit_test(test_filter_path_list)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
