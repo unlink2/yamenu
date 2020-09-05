@@ -15,7 +15,7 @@ MAIN = main
 TEST_MAIN = test
 INSTALLDIR = /usr/local/bin
 
-MODULES =
+MODULES = utility data
 
 DEPS=$(patsubst %,$(INCLUDEDIR)/%.h,$(MODULES))
 OBJ=$(patsubst %,$(ODIR)/%.o,$(MODULES))
