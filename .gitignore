@@ -1,0 +1,8 @@
+*.bin
+*.z64
+bin/
+rom/
+__pycache__/
+obj/
+gcc_build/
+node_modules/
