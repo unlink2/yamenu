@@ -70,4 +70,6 @@ init:
 
 .PHONY: install
 install:
+	mkdir -p ${INSTALLDIR}/model
+	cp model/window_main.glade ${INSTALLDIR}/model/
 	cp ${BINDIR}/${BIN} ${INSTALLDIR}/${BIN}

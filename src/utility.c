@@ -4,6 +4,7 @@
 
 #include "include/utility.h"
 
+
 const char *argp_program_version = "yamenu 0.0.1";
 const char *argp_program_bug_address = "<lukas@krickl.dev>";
 static char doc[] = "Yet another X launcher.";
