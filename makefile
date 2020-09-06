@@ -1,6 +1,7 @@
 CC=gcc
 DBG=gdb
 BIN=yamenu
+PKGCONFIG = $(shell which pkg-config)
 
 INCLUDEDIR=./src/include
 SRCDIR=./src
@@ -8,14 +9,14 @@ ODIR=./obj
 BINDIR=./bin
 TEST_DIR = ./tests
 
-LIBS=
-CFLAGS=-Wall -g
-CFLAGS_RELEASE=-Wall -O1
+LIBS=$(shell $(PKGCONFIG) --libs gtk+-3.0)
+CFLAGS=-Wall -g $(shell $(PKGCONFIG) --cflags gtk+-3.0)
+OTHER_FLAGS=-rdynamic
 MAIN = main
 TEST_MAIN = test
 INSTALLDIR = /usr/local/bin
 
-MODULES = utility data commandline path
+MODULES = utility data commandline path gui
 
 DEPS=$(patsubst %,$(INCLUDEDIR)/%.h,$(MODULES))
 OBJ=$(patsubst %,$(ODIR)/%.o,$(MODULES))
@@ -26,10 +27,10 @@ TEST_OBJ+=$(patsubst %,$(ODIR)/%.o,$(TEST_MAIN))
 # main
 
 $(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS) | init
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) $(OTHER_FLAGS) -c -o $@ $< $(CFLAGS)
 
 yamenu: $(OBJ)
-	$(CC) -o $(BINDIR)/$@ $^ $(LIBS)
+	$(CC) $(OTHER_FLAGS) -o $(BINDIR)/$@ $^ $(LIBS)
 
 
 # test

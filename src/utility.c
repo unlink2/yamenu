@@ -49,7 +49,7 @@ static struct argp argp = {
 struct yamenu_app parse_args(int argc, char **argv) {
     struct yamenu_app arguments;
 
-    arguments.nox = false;
+    arguments.nox = YAMENU_NOX_DEFAULT;
     arguments.separator = ';';
     arguments.input_list = "";
     arguments.path_list = NULL;

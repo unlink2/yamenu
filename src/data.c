@@ -1,6 +1,9 @@
 #include "include/data.h"
 #include "include/utility.h"
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 void yamenu_app_free(struct yamenu_app *app) {
     if (app->path_list) {
@@ -111,3 +114,37 @@ linked_list* filter_path_list(linked_list *list, char *search) {
 
     return head;
 }
+
+void execute_path(yamenu_app *app, file_path *path) {
+    // TODO double fork to get pid 1 as parent and close all open files
+    // and re-open stdin, stdout and stderr
+
+    if (!path) {
+        return;
+    }
+
+    // double fork to prevent zombie
+    int pid_single = fork();
+    if (pid_single > 0) {
+        // parent
+        return;
+    } else if (pid_single < 0) {
+        // TODO error!
+        return;
+    }
+    // pid is 0 fork was successfull
+    int pid_double = fork();
+    if (pid_double != 0) {
+        // child 1
+        exit(pid_double > 0);
+    }
+
+    // pid is 0 again fork was successfull
+    setsid(); // get new session
+
+    struct passwd *pw = getpwuid(getuid());
+    chdir(pw->pw_dir);
+
+    execl(app->shell, app->shell, "-c", path->path, NULL);
+}
+

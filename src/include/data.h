@@ -7,6 +7,9 @@
 
 #include "path.h"
 
+// default value for nox flag
+#define YAMENU_NOX_DEFAULT false
+
 /**
  * Linked list of generic objects
  */
@@ -91,5 +94,12 @@ linked_list* create_path_list(char *input, char separator);
  *  A new linked list with paths containing the search term
  */
 linked_list* filter_path_list(linked_list *list, char *search);
+
+/**
+ * executes a path using the application's settings
+ * returns:
+ *  The pid of the newly started process or 0 on error
+ */
+void execute_path(yamenu_app *app, file_path *path);
 
 #endif
