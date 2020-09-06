@@ -14,26 +14,29 @@
   </object>
   <object class="GtkWindow" id="window_main">
     <property name="can_focus">False</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
     <property name="resizable">False</property>
-    <property name="window_position">center</property>
-    <property name="default_height">100</property>
+    <property name="default_width">150</property>
+    <property name="default_height">250</property>
     <property name="type_hint">popup-menu</property>
     <property name="decorated">False</property>
     <signal name="destroy" handler="on_window_main_destroy" swapped="no"/>
     <signal name="focus-out-event" handler="on_window_main_focus_out" swapped="no"/>
     <signal name="key-press-event" handler="on_window_main_key_press_event" swapped="no"/>
     <child>
-      <object class="GtkGrid">
+      <object class="GtkScrolledWindow">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can_focus">True</property>
         <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+        <property name="shadow_type">in</property>
         <child>
           <object class="GtkTreeView" id="application_list">
             <property name="width_request">100</property>
             <property name="height_request">80</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="margin_bottom">150</property>
             <property name="hexpand">True</property>
             <property name="model">appplication_list_model</property>
             <property name="headers_clickable">False</property>
@@ -54,10 +57,6 @@
               </object>
             </child>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
       </object>
     </child>
