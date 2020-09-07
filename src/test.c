@@ -167,12 +167,22 @@ static void test_filter_path_list(void **state) {
     linked_list_free(filtered);
 }
 
+static void test_my_malloc_and_free(void **state) {
+    // my_malloc should memset to 0
+    char *test = my_malloc(64);
+    for (int i = 0; i < 64; i++) {
+        assert_int_equal(test[i], 0);
+    }
+    my_free(test);
+}
+
 int main() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_parse_args),
         cmocka_unit_test(test_linked_list),
         cmocka_unit_test(test_create_path_list),
-        cmocka_unit_test(test_filter_path_list)
+        cmocka_unit_test(test_filter_path_list),
+        cmocka_unit_test(test_my_malloc_and_free)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
