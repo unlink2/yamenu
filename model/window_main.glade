@@ -37,16 +37,22 @@
             <property name="height_request">80</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="double_buffered">False</property>
             <property name="hexpand">True</property>
             <property name="model">appplication_list_model</property>
+            <property name="headers_visible">False</property>
             <property name="headers_clickable">False</property>
             <property name="search_column">0</property>
+            <property name="fixed_height_mode">True</property>
+            <property name="show_expanders">False</property>
+            <property name="enable_tree_lines">True</property>
             <signal name="row-activated" handler="on_main_window_application_select" swapped="no"/>
             <child internal-child="selection">
               <object class="GtkTreeSelection"/>
             </child>
             <child>
               <object class="GtkTreeViewColumn">
+                <property name="sizing">fixed</property>
                 <property name="title" translatable="yes">Path</property>
                 <child>
                   <object class="GtkCellRendererText" id="path"/>

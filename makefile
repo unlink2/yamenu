@@ -72,4 +72,5 @@ init:
 install:
 	mkdir -p ${INSTALLDIR}/model
 	cp model/window_main.glade ${INSTALLDIR}/model/
+	cp run_yamenu.sh ${INSTALLDIR}/
 	cp ${BINDIR}/${BIN} ${INSTALLDIR}/${BIN}
