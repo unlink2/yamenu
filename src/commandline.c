@@ -9,6 +9,7 @@
 void command_line_interface(yamenu_app *app) {
     if (!app->path_list) {
         fprintf(stderr, "No input paths\n");
+        return;
     }
 
     char input_buffer[INPUT_BUFFER_SIZE];

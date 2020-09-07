@@ -145,6 +145,9 @@ void execute_path(yamenu_app *app, file_path *path) {
     struct passwd *pw = getpwuid(getuid());
     chdir(pw->pw_dir);
 
-    execl(app->shell, app->shell, "-c", path->path, NULL);
+    // this will leak, but we're also going to exit right after. not so bad
+    char *to_exec = my_malloc(strlen(app->prefix) + strlen(path->path))+3;
+    sprintf(to_exec, "%s %s", app->prefix, path->path);
+    execl(app->shell, app->shell, "-c", to_exec, NULL);
 }
 

@@ -19,14 +19,16 @@ static void test_parse_args(void **state) {
             "./test", // program name
             "-s&",
             "-pPath1;Path2;Path3",
-            "-n"
+            "-n",
+            "-Ptest"
         };
-        int argc = 4;
+        int argc = 5;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
         assert_true(arguments.nox);
         assert_int_equal(arguments.separator, '&');
+        assert_string_equal(arguments.prefix, "test");
         yamenu_app_free(&arguments);
     }
     {
@@ -34,15 +36,17 @@ static void test_parse_args(void **state) {
             "./test", // program name
             "--separator=&",
             "--path=Path1;Path2;Path3",
-            "--nox"
+            "--nox",
+            "--prefix=test"
         };
-        int argc = 4;
+        int argc = 5;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
         assert_true(arguments.nox);
         assert_int_equal(arguments.separator, '&');
         yamenu_app_free(&arguments);
+        assert_string_equal(arguments.prefix, "test");
     }
     {
         const char *argv[] = {
@@ -51,10 +55,11 @@ static void test_parse_args(void **state) {
         int argc = 1;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
-        assert_string_equal(arguments.input_list, "");
+        assert_null(arguments.input_list);
         assert_false(arguments.nox);
         assert_int_equal(arguments.separator, ';');
         yamenu_app_free(&arguments);
+        assert_string_equal(arguments.prefix, "");
     }
 }
 

@@ -13,6 +13,7 @@ static struct argp_option options[] = {
     { "separator", 's', "char", OPTION_ARG_OPTIONAL, "Specify list separator. Defaults to ';'"},
     { "paths", 'p', "paths", OPTION_ARG_OPTIONAL, "<separator> terminated list of paths."},
     { "nox", 'n', 0, OPTION_ARG_OPTIONAL, "Run command line mode."},
+    { "prefix", 'P', "prefix", OPTION_ARG_OPTIONAL, "Added before every command."},
     { 0 }
 };
 
@@ -31,6 +32,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             if (arg && strlen(arg) == 1) {
                 arguments->separator = arg[0];
             }
+            break;
+        case 'P':
+            arguments->prefix = arg;
             break;
         case ARGP_KEY_ARG:
             return 0;
@@ -52,9 +56,10 @@ struct yamenu_app parse_args(int argc, char **argv) {
 
     arguments.nox = YAMENU_NOX_DEFAULT;
     arguments.separator = ';';
-    arguments.input_list = "";
+    arguments.input_list = NULL;
     arguments.path_list = NULL;
     arguments.shell = "/bin/sh";
+    arguments.prefix = "";
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 

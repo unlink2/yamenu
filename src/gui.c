@@ -1,5 +1,6 @@
 #include "include/gui.h"
 #include <gdk/gdkkeysyms.h>
+#include <libgen.h>
 
 enum APP_LIST_COLS {
     PATH_COL,
@@ -10,7 +11,7 @@ enum APP_LIST_COLS {
 void add_app_to_list(linked_list *paths, yamenu_app *app, GtkListStore *list_store, GtkTreeIter *iter) {
     gtk_list_store_append(list_store, iter);
     gtk_list_store_set(list_store, iter,
-            PATH_COL, paths->fp->path,
+            PATH_COL, basename(paths->fp->path),
             META_COL, paths,
             APP_COL, app,
             -1);

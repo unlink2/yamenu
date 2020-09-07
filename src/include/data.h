@@ -31,6 +31,7 @@ typedef struct yamenu_app {
     bool nox;
     char separator;
     char *input_list; // input for path list parser
+    char *prefix;
 } yamenu_app;
 
 void yamenu_app_free(struct yamenu_app *app);
