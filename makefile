@@ -17,7 +17,7 @@ MAIN = main
 TEST_MAIN = test
 INSTALLDIR = /usr/local/bin
 
-MODULES = utility data commandline path gui
+MODULES = utility data commandline path gui logger
 
 DEPS=$(patsubst %,$(INCLUDEDIR)/%.h,$(MODULES))
 OBJ=$(patsubst %,$(ODIR)/%.o,$(MODULES))

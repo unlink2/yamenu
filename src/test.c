@@ -8,6 +8,7 @@
 
 #include "include/utility.h"
 #include "include/data.h"
+#include "include/logger.h"
 
 #define main __real_main
 #include "main.c"
@@ -20,15 +21,17 @@ static void test_parse_args(void **state) {
             "-s&",
             "-pPath1;Path2;Path3",
             "-n",
-            "-Ptest"
+            "-Ptest",
+            "-v"
         };
-        int argc = 5;
+        int argc = 6;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
         assert_true(arguments.nox);
         assert_int_equal(arguments.separator, '&');
         assert_string_equal(arguments.prefix, "test");
+        assert_int_equal(arguments.log_level, 0);
         yamenu_app_free(&arguments);
     }
     {
@@ -37,9 +40,10 @@ static void test_parse_args(void **state) {
             "--separator=&",
             "--path=Path1;Path2;Path3",
             "--nox",
-            "--prefix=test"
+            "--prefix=test",
+            "--verbose"
         };
-        int argc = 5;
+        int argc = 6;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -47,6 +51,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.separator, '&');
         yamenu_app_free(&arguments);
         assert_string_equal(arguments.prefix, "test");
+        assert_int_equal(arguments.log_level, 0);
     }
     {
         const char *argv[] = {
@@ -60,6 +65,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.separator, ';');
         yamenu_app_free(&arguments);
         assert_string_equal(arguments.prefix, "");
+        assert_int_equal(arguments.log_level, 3);
     }
 }
 
@@ -190,6 +196,17 @@ static void test_build_command(void **state) {
     my_free(to_exec);
 }
 
+static void test_should_log(void **state) {
+    assert_true(should_log(3, 0));
+    assert_true(should_log(3, 1));
+    assert_true(should_log(3, 2));
+
+    assert_true(should_log(3, 3));
+
+    assert_false(should_log(3, 4));
+    assert_false(should_log(3, 5));
+}
+
 int main() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_parse_args),
@@ -197,7 +214,8 @@ int main() {
         cmocka_unit_test(test_create_path_list),
         cmocka_unit_test(test_filter_path_list),
         cmocka_unit_test(test_my_malloc_and_free),
-        cmocka_unit_test(test_build_command)
+        cmocka_unit_test(test_build_command),
+        cmocka_unit_test(test_should_log)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

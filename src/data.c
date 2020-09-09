@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include "include/logger.h"
 
 void yamenu_app_free(struct yamenu_app *app) {
     if (app->path_list) {
@@ -153,6 +154,7 @@ void execute_path(yamenu_app *app, file_path *path) {
 
     // this will leak, but we're also going to exit right after. not so bad
     char *to_exec = build_command(app, path);
+    yalogger(app, LEVEL_INFO, to_exec);
     execl(app->shell, app->shell, "-c", to_exec, NULL);
 }
 

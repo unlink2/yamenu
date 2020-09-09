@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "include/logger.h"
 #include "include/utility.h"
 
 
@@ -14,6 +15,7 @@ static struct argp_option options[] = {
     { "paths", 'p', "paths", OPTION_ARG_OPTIONAL, "<separator> terminated list of paths."},
     { "nox", 'n', 0, OPTION_ARG_OPTIONAL, "Run command line mode."},
     { "prefix", 'P', "prefix", OPTION_ARG_OPTIONAL, "Added before every command."},
+    { "verbose", 'v', NULL, OPTION_ARG_OPTIONAL, "Enables verbose logging."},
     { 0 }
 };
 
@@ -35,6 +37,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             break;
         case 'P':
             arguments->prefix = arg;
+            break;
+        case 'v':
+            arguments->log_level = LEVEL_DEBUG;
             break;
         case ARGP_KEY_ARG:
             return 0;
@@ -60,6 +65,7 @@ struct yamenu_app parse_args(int argc, char **argv) {
     arguments.path_list = NULL;
     arguments.shell = "/bin/sh";
     arguments.prefix = "";
+    arguments.log_level = LEVEL_ERRROR;
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 

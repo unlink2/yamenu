@@ -32,6 +32,7 @@ typedef struct yamenu_app {
     char separator;
     char *input_list; // input for path list parser
     char *prefix;
+    short log_level;
 } yamenu_app;
 
 void yamenu_app_free(struct yamenu_app *app);

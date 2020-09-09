@@ -1,6 +1,7 @@
 #include "include/gui.h"
 #include <gdk/gdkkeysyms.h>
 #include <libgen.h>
+#include "include/logger.h"
 
 enum APP_LIST_COLS {
     PATH_COL,
@@ -26,6 +27,8 @@ int gui_interface(int argc, char **argv, yamenu_app *app) {
     gtk_init(&argc, &argv);
 
     builder = gtk_builder_new();
+
+    yalogger(app, LEVEL_INFO, MAIN_WIN_VIEW);
     gtk_builder_add_from_file(builder, MAIN_WIN_VIEW, NULL);
 
     window = GTK_WIDGET(gtk_builder_get_object(builder, "window_main"));
