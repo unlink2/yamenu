@@ -5,8 +5,13 @@
 // #define YAMENU_NO_GTK
 #ifndef YAMENU_NO_GTK
 
-#define MAIN_WIN_MODEL "model/window_main.glade"
-// #define MAIN_WIN_MODEL "/usr/local/bin/model/window_main.glade"
+
+
+#ifdef DEBUG
+#define MAIN_WIN_VIEW "view/window_main.glade"
+#else
+#define MAIN_WIN_VIEW "/usr/local/bin/view/window_main.glade"
+#endif
 
 #include "data.h"
 #include <gtk/gtk.h>

@@ -176,13 +176,28 @@ static void test_my_malloc_and_free(void **state) {
     my_free(test);
 }
 
+static void test_build_command(void **state) {
+    yamenu_app app;
+    app.prefix = "prefix for app";
+
+    file_path *path = file_path_create("/test/path");
+
+    char *to_exec = build_command(&app, path);
+
+    assert_string_equal("prefix for app /test/path", to_exec);
+
+    file_path_free(path);
+    my_free(to_exec);
+}
+
 int main() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_parse_args),
         cmocka_unit_test(test_linked_list),
         cmocka_unit_test(test_create_path_list),
         cmocka_unit_test(test_filter_path_list),
-        cmocka_unit_test(test_my_malloc_and_free)
+        cmocka_unit_test(test_my_malloc_and_free),
+        cmocka_unit_test(test_build_command)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

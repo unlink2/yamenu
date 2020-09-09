@@ -97,6 +97,12 @@ linked_list* create_path_list(char *input, char separator);
 linked_list* filter_path_list(linked_list *list, char *search);
 
 /**
+ * Builds a command based on the global application settings
+ * and the current path
+ */
+char* build_command(yamenu_app *app, file_path *path);
+
+/**
  * executes a path using the application's settings
  * returns:
  *  The pid of the newly started process or 0 on error

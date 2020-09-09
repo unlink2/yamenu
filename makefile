@@ -9,8 +9,9 @@ ODIR=./obj
 BINDIR=./bin
 TEST_DIR = ./tests
 
+DEBUG=-DDEBUG
 LIBS=$(shell $(PKGCONFIG) --libs gtk+-3.0)
-CFLAGS=-Wall -g $(shell $(PKGCONFIG) --cflags gtk+-3.0)
+CFLAGS=-Wall -g $(shell $(PKGCONFIG) --cflags gtk+-3.0) $(DEBUG)
 OTHER_FLAGS=-rdynamic
 MAIN = main
 TEST_MAIN = test
@@ -70,7 +71,7 @@ init:
 
 .PHONY: install
 install:
-	mkdir -p ${INSTALLDIR}/model
-	cp model/window_main.glade ${INSTALLDIR}/model/
+	mkdir -p ${INSTALLDIR}/view
+	cp view/window_main.glade ${INSTALLDIR}/view/
 	cp run_yamenu.sh ${INSTALLDIR}/
 	cp ${BINDIR}/${BIN} ${INSTALLDIR}/${BIN}

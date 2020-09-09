@@ -115,6 +115,12 @@ linked_list* filter_path_list(linked_list *list, char *search) {
     return head;
 }
 
+char* build_command(yamenu_app *app, file_path *path) {
+    char *to_exec = my_malloc(strlen(app->prefix) + strlen(path->path)+3);
+    sprintf(to_exec, "%s %s", app->prefix, path->path);
+    return to_exec;
+}
+
 void execute_path(yamenu_app *app, file_path *path) {
     // TODO double fork to get pid 1 as parent and close all open files
     // and re-open stdin, stdout and stderr
@@ -146,8 +152,7 @@ void execute_path(yamenu_app *app, file_path *path) {
     chdir(pw->pw_dir);
 
     // this will leak, but we're also going to exit right after. not so bad
-    char *to_exec = my_malloc(strlen(app->prefix) + strlen(path->path))+3;
-    sprintf(to_exec, "%s %s", app->prefix, path->path);
+    char *to_exec = build_command(app, path);
     execl(app->shell, app->shell, "-c", to_exec, NULL);
 }
 
