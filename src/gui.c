@@ -18,7 +18,7 @@ void add_app_to_list(linked_list *paths, yamenu_app *app, GtkListStore *list_sto
             -1);
 }
 
-int gui_interface(int argc, char **argv, yamenu_app *app) {
+int graphical_interface(int argc, char **argv, yamenu_app *app) {
     GtkBuilder *builder;
     GtkWidget *window;
     GtkTreeIter iter;

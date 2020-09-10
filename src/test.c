@@ -22,15 +22,17 @@ static void test_parse_args(void **state) {
             "-pPath1;Path2;Path3",
             "-n",
             "-Ptest",
+            "-FpostTest",
             "-v"
         };
-        int argc = 6;
+        int argc = 7;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
         assert_true(arguments.nox);
         assert_int_equal(arguments.separator, '&');
         assert_string_equal(arguments.prefix, "test");
+        assert_string_equal(arguments.postfix, "postTest");
         assert_int_equal(arguments.log_level, 0);
         yamenu_app_free(&arguments);
     }
@@ -41,9 +43,10 @@ static void test_parse_args(void **state) {
             "--path=Path1;Path2;Path3",
             "--nox",
             "--prefix=test",
+            "--postfix=postTest",
             "--verbose"
         };
-        int argc = 6;
+        int argc = 7;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -51,6 +54,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.separator, '&');
         yamenu_app_free(&arguments);
         assert_string_equal(arguments.prefix, "test");
+        assert_string_equal(arguments.postfix, "postTest");
         assert_int_equal(arguments.log_level, 0);
     }
     {
@@ -65,6 +69,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.separator, ';');
         yamenu_app_free(&arguments);
         assert_string_equal(arguments.prefix, "");
+        assert_string_equal(arguments.postfix, "");
         assert_int_equal(arguments.log_level, 3);
     }
 }
@@ -185,12 +190,13 @@ static void test_my_malloc_and_free(void **state) {
 static void test_build_command(void **state) {
     yamenu_app app;
     app.prefix = "prefix for app";
+    app.postfix = "Test postfix";
 
     file_path *path = file_path_create("/test/path");
 
     char *to_exec = build_command(&app, path);
 
-    assert_string_equal("prefix for app /test/path", to_exec);
+    assert_string_equal("prefix for app /test/path Test postfix", to_exec);
 
     file_path_free(path);
     my_free(to_exec);

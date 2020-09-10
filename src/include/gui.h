@@ -16,7 +16,7 @@
 #include "data.h"
 #include <gtk/gtk.h>
 
-int gui_interface(int argc, char **argv, yamenu_app *app);
+int graphical_interface(int argc, char **argv, yamenu_app *app);
 
 void on_window_main_destroy();
 

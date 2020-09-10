@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
     if (app.nox) {
         command_line_interface(&app);
     } else {
-        gui_interface(argc, argv, &app);
+        graphical_interface(argc, argv, &app);
     }
 
     yamenu_app_free(&app);

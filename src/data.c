@@ -117,8 +117,8 @@ linked_list* filter_path_list(linked_list *list, char *search) {
 }
 
 char* build_command(yamenu_app *app, file_path *path) {
-    char *to_exec = my_malloc(strlen(app->prefix) + strlen(path->path)+3);
-    sprintf(to_exec, "%s %s", app->prefix, path->path);
+    char *to_exec = my_malloc(strlen(app->prefix) + strlen(path->path) + strlen(app->postfix) + 5);
+    sprintf(to_exec, "%s %s %s", app->prefix, path->path, app->postfix);
     return to_exec;
 }
 
