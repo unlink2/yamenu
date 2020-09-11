@@ -122,6 +122,19 @@ char* build_command(yamenu_app *app, file_path *path) {
     return to_exec;
 }
 
+char* basefilename(const char *filename) {
+    char *s = strstr(filename, ".");
+    if (strcmp(filename, ".") == 0
+            || strcmp(filename, "..") == 0) {
+        return strdup(filename);
+    } else if (!s) {
+        return strdup(filename);
+    } else {
+        // only copy until '.'
+        return strndup(filename, s-filename);
+    }
+}
+
 void execute_path(yamenu_app *app, file_path *path) {
     // TODO double fork to get pid 1 as parent and close all open files
     // and re-open stdin, stdout and stderr

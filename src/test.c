@@ -213,6 +213,28 @@ static void test_should_log(void **state) {
     assert_false(should_log(3, 5));
 }
 
+static void test_basefilename(void **state) {
+    char *t1 = basefilename("test.txt");
+    assert_string_equal(t1, "test");
+    my_free(t1);
+
+    char *t2 = basefilename("test.txt.dat");
+    assert_string_equal(t2, "test");
+    my_free(t2);
+
+    char *t3 = basefilename("test_no_ext");
+    assert_string_equal(t3, "test_no_ext");
+    my_free(t3);
+
+    char *this_dir = basefilename(".");
+    assert_string_equal(this_dir, ".");
+    my_free(this_dir);
+
+    char *parent_dir = basefilename("..");
+    assert_string_equal(parent_dir, "..");
+    my_free(parent_dir);
+}
+
 int main() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_parse_args),
@@ -221,7 +243,8 @@ int main() {
         cmocka_unit_test(test_filter_path_list),
         cmocka_unit_test(test_my_malloc_and_free),
         cmocka_unit_test(test_build_command),
-        cmocka_unit_test(test_should_log)
+        cmocka_unit_test(test_should_log),
+        cmocka_unit_test(test_basefilename)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

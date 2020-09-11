@@ -105,6 +105,15 @@ linked_list* filter_path_list(linked_list *list, char *search);
 char* build_command(yamenu_app *app, file_path *path);
 
 /**
+ * Extracts the base name from a given filename (anything after '.' is removed)
+ * Note that it only takes the first occurance of '.' into consideration.
+ * returns:
+ *  a newly allocated string containing the result
+ *  it always returns '.' and '..' as is
+ */
+char* basefilename(const char *filename);
+
+/**
  * executes a path using the application's settings
  * returns:
  *  The pid of the newly started process or 0 on error
