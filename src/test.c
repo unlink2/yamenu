@@ -286,6 +286,26 @@ static void test_strstr_last(void **state) {
     }
 }
 
+static void test_linked_list_swap(void **state) {
+    // make a list
+    linked_list *list = linked_list_create("Test");
+    linked_list_push(list, "2");
+    linked_list_push(list, "3");
+
+    // test oob swap
+    assert_false(linked_list_swap(list, 0, 50));
+    assert_false(linked_list_swap(list, 50, 1));
+
+    // valid swap
+    assert_string_equal(linked_list_get(list, 2)->str, "3");
+    assert_string_equal(linked_list_get(list, 0)->str, "Test");
+    assert_true(linked_list_swap(list, 0, 2));
+    assert_string_equal(linked_list_get(list, 0)->str, "3");
+    assert_string_equal(linked_list_get(list, 2)->str, "Test");
+
+    linked_list_free(list);
+}
+
 int main() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_parse_args),
@@ -296,7 +316,8 @@ int main() {
         cmocka_unit_test(test_build_command),
         cmocka_unit_test(test_should_log),
         cmocka_unit_test(test_basefilename),
-        cmocka_unit_test(test_strstr_last)
+        cmocka_unit_test(test_strstr_last),
+        cmocka_unit_test(test_linked_list_swap)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

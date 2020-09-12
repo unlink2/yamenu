@@ -78,6 +78,15 @@ linked_list* linked_list_pop(linked_list *list);
  */
 size_t linked_list_size(linked_list *list);
 
+
+/**
+ * Swaps values between index1 and index2
+ */
+bool linked_list_swap(linked_list *list, size_t index1, size_t index2);
+
+// TODO implement quicksort for linked list. This requires a way to swap values for linekd list.
+// it should only swap the generic void ptr and not the acual list entries. This preserves the head
+
 /**
  * Frees all linked_list objects in a list.
  * Does not fre the actual path strings.
@@ -126,6 +135,5 @@ char* basefilename(const char *filename);
  */
 char* strstr_last(const char *str, const char *search);
 
-// TODO implement quicksort for linked list
 
 #endif

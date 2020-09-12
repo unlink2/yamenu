@@ -68,6 +68,21 @@ size_t linked_list_size(linked_list *list) {
     return count;
 }
 
+bool linked_list_swap(linked_list *list, size_t index1, size_t index2) {
+    linked_list *l1 = linked_list_get(list, index1);
+    linked_list *l2 = linked_list_get(list, index2);
+
+    if (!l1 || !l2) {
+        return false;
+    }
+
+    void *temp = l1->generic;
+    l1->generic = l2->generic;
+    l2->generic = temp;
+
+    return true;
+}
+
 void linked_list_free(linked_list *list) {
     while (list) {
         linked_list *to_free = list;
