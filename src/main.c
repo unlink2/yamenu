@@ -7,6 +7,7 @@
 
 int main(int argc, char **argv) {
     yamenu_app app = parse_args(argc, argv);
+    yamenu_app_init_paths(&app);
 
     if (app.nox) {
         command_line_interface(&app);

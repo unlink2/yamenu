@@ -10,6 +10,9 @@
 // default value for nox flag
 #define YAMENU_NOX_DEFAULT false
 
+// default location of desktop applications
+#define YAMENU_DEFAULT_SEARCH_PATH "/usr/share/applications"
+
 /**
  * Linked list of generic objects
  */
@@ -34,6 +37,10 @@ typedef struct yamenu_app {
     char *prefix;
     char *postfix;
     short log_level;
+
+    char *search_path;
+    bool show_hidden;
+    bool base_name_only;
 } yamenu_app;
 
 void yamenu_app_free(struct yamenu_app *app);
@@ -110,14 +117,15 @@ char* build_command(yamenu_app *app, file_path *path);
  * returns:
  *  a newly allocated string containing the result
  *  it always returns '.' and '..' as is
+ *  returns hidden files as is (files starting with '.')
  */
 char* basefilename(const char *filename);
 
 /**
- * executes a path using the application's settings
- * returns:
- *  The pid of the newly started process or 0 on error
+ * Works like strstr but finds the last occurange of string
  */
-void execute_path(yamenu_app *app, file_path *path);
+char* strstr_last(const char *str, const char *search);
+
+// TODO implement quicksort for linked list
 
 #endif

@@ -14,6 +14,13 @@
 #include "main.c"
 #undef main
 
+/**
+ * The following files cannot be tested:
+ *  commandline.c - the terminal interface
+ *  gui.c - the graphical interface
+ *  sysio.c - system IO functionality
+ */
+
 static void test_parse_args(void **state) {
     {
         const char *argv[] = {
@@ -23,9 +30,12 @@ static void test_parse_args(void **state) {
             "-n",
             "-Ptest",
             "-FpostTest",
-            "-v"
+            "-v",
+            "-Stestpath",
+            "-b",
+            "-a"
         };
-        int argc = 7;
+        int argc = 10;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -34,6 +44,10 @@ static void test_parse_args(void **state) {
         assert_string_equal(arguments.prefix, "test");
         assert_string_equal(arguments.postfix, "postTest");
         assert_int_equal(arguments.log_level, 0);
+        assert_string_equal(arguments.search_path, "testpath");
+        assert_true(arguments.show_hidden);
+        assert_false(arguments.base_name_only);
+
         yamenu_app_free(&arguments);
     }
     {
@@ -44,22 +58,29 @@ static void test_parse_args(void **state) {
             "--nox",
             "--prefix=test",
             "--postfix=postTest",
-            "--verbose"
+            "--verbose",
+            "--search=testpath",
+            "--base",
+            "--all"
         };
-        int argc = 7;
+        int argc = 10;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
         assert_true(arguments.nox);
         assert_int_equal(arguments.separator, '&');
-        yamenu_app_free(&arguments);
         assert_string_equal(arguments.prefix, "test");
         assert_string_equal(arguments.postfix, "postTest");
         assert_int_equal(arguments.log_level, 0);
+        assert_string_equal(arguments.search_path, "testpath");
+        assert_true(arguments.show_hidden);
+        assert_false(arguments.base_name_only);
+
+        yamenu_app_free(&arguments);
     }
     {
         const char *argv[] = {
-            "./test", // program name
+            "./test" // program name
         };
         int argc = 1;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
@@ -67,10 +88,14 @@ static void test_parse_args(void **state) {
         assert_null(arguments.input_list);
         assert_false(arguments.nox);
         assert_int_equal(arguments.separator, ';');
-        yamenu_app_free(&arguments);
         assert_string_equal(arguments.prefix, "");
         assert_string_equal(arguments.postfix, "");
         assert_int_equal(arguments.log_level, 3);
+        assert_string_equal(arguments.search_path, YAMENU_DEFAULT_SEARCH_PATH);
+        assert_false(arguments.show_hidden);
+        assert_true(arguments.base_name_only);
+
+        yamenu_app_free(&arguments);
     }
 }
 
@@ -219,7 +244,7 @@ static void test_basefilename(void **state) {
     my_free(t1);
 
     char *t2 = basefilename("test.txt.dat");
-    assert_string_equal(t2, "test");
+    assert_string_equal(t2, "test.txt");
     my_free(t2);
 
     char *t3 = basefilename("test_no_ext");
@@ -233,6 +258,32 @@ static void test_basefilename(void **state) {
     char *parent_dir = basefilename("..");
     assert_string_equal(parent_dir, "..");
     my_free(parent_dir);
+
+    char *hidden = basefilename(".hidden");
+    assert_string_equal(hidden, ".hidden");
+    my_free(hidden);
+
+    assert_null(basefilename(NULL));
+}
+
+static void test_strstr_last(void **state) {
+    assert_null(strstr_last("notfound", "404"));
+
+    {
+        char *res = strstr_last(".last.here", ".");
+        assert_non_null(res);
+        assert_string_equal(res, ".here");
+    }
+    {
+        char *res = strstr_last(".last", ".");
+        assert_non_null(res);
+        assert_string_equal(res, ".last");
+    }
+    {
+        char *res = strstr_last("this_is.test", ".");
+        assert_non_null(res);
+        assert_string_equal(res, ".test");
+    }
 }
 
 int main() {
@@ -244,7 +295,8 @@ int main() {
         cmocka_unit_test(test_my_malloc_and_free),
         cmocka_unit_test(test_build_command),
         cmocka_unit_test(test_should_log),
-        cmocka_unit_test(test_basefilename)
+        cmocka_unit_test(test_basefilename),
+        cmocka_unit_test(test_strstr_last)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

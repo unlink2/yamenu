@@ -4,7 +4,7 @@
 
 #include "include/logger.h"
 #include "include/utility.h"
-
+#include "include/sysio.h"
 
 const char *argp_program_version = "yamenu 0.0.1";
 const char *argp_program_bug_address = "<lukas@krickl.dev>";
@@ -17,6 +17,9 @@ static struct argp_option options[] = {
     { "prefix", 'P', "prefix", OPTION_ARG_OPTIONAL, "Added before every command."},
     { "postfix", 'F', "postfix", OPTION_ARG_OPTIONAL, "Added after every command."},
     { "verbose", 'v', NULL, OPTION_ARG_OPTIONAL, "Enables verbose logging."},
+    { "search", 'S', "path", OPTION_ARG_OPTIONAL, "Lists a given directory. This only works is --paths is not provided."},
+    { "all", 'a', NULL, OPTION_ARG_OPTIONAL, "Include hidden files in the list"},
+    { "base", 'b', NULL, OPTION_ARG_OPTIONAL, "Do not just return file's basename"},
     { 0 }
 };
 
@@ -45,6 +48,15 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'v':
             arguments->log_level = LEVEL_DEBUG;
             break;
+        case 'a':
+            arguments->show_hidden = true;
+            break;
+        case 'b':
+            arguments->base_name_only = false;
+            break;
+        case 'S':
+            arguments->search_path = arg;
+            break;
         case ARGP_KEY_ARG:
             return 0;
         default:
@@ -71,16 +83,25 @@ struct yamenu_app parse_args(int argc, char **argv) {
     arguments.prefix = "";
     arguments.postfix = "";
     arguments.log_level = LEVEL_ERRROR;
+    arguments.base_name_only = true;
+    arguments.show_hidden = false;
+    arguments.search_path = YAMENU_DEFAULT_SEARCH_PATH;
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
+    return arguments;
+}
+
+void yamenu_app_init_paths(yamenu_app *app) {
     // NULL check is required because
     // an empty input may yield NULL
-    if (arguments.input_list) {
-        arguments.path_list = create_path_list(arguments.input_list, arguments.separator);
+    if (app->input_list) {
+        app->path_list = create_path_list(app->input_list, app->separator);
+    } else {
+        // if an empty list was provided list the search directory instead
+        app->path_list = create_path_list_from_dir(app->search_path, app->show_hidden,
+                true, app->base_name_only ? basefilename : NULL);
     }
-
-    return arguments;
 }
 
 void* my_malloc(size_t size) {

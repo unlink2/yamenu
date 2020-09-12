@@ -2,6 +2,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <libgen.h>
 #include "include/logger.h"
+#include "include/sysio.h"
 
 enum APP_LIST_COLS {
     PATH_COL,

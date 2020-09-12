@@ -123,9 +123,13 @@ char* build_command(yamenu_app *app, file_path *path) {
 }
 
 char* basefilename(const char *filename) {
-    char *s = strstr(filename, ".");
+    if (!filename) {
+        return NULL;
+    }
+    char *s = strstr_last(filename, ".");
     if (strcmp(filename, ".") == 0
-            || strcmp(filename, "..") == 0) {
+            || strcmp(filename, "..") == 0
+            || filename[0] == '.') {
         return strdup(filename);
     } else if (!s) {
         return strdup(filename);
@@ -135,39 +139,15 @@ char* basefilename(const char *filename) {
     }
 }
 
-void execute_path(yamenu_app *app, file_path *path) {
-    // TODO double fork to get pid 1 as parent and close all open files
-    // and re-open stdin, stdout and stderr
+char* strstr_last(const char *str, const char *search) {
+    char *current = NULL;
+    char *tmp = (char*)str-1;
+    char *last = NULL;
 
-    if (!path) {
-        return;
+    while (tmp) {
+        last = current;
+        tmp = strstr(tmp+1, search);
+        current = tmp;
     }
-
-    // double fork to prevent zombie
-    int pid_single = fork();
-    if (pid_single > 0) {
-        // parent
-        return;
-    } else if (pid_single < 0) {
-        // TODO error!
-        return;
-    }
-    // pid is 0 fork was successfull
-    int pid_double = fork();
-    if (pid_double != 0) {
-        // child 1
-        exit(pid_double > 0);
-    }
-
-    // pid is 0 again fork was successfull
-    setsid(); // get new session
-
-    struct passwd *pw = getpwuid(getuid());
-    chdir(pw->pw_dir);
-
-    // this will leak, but we're also going to exit right after. not so bad
-    char *to_exec = build_command(app, path);
-    yalogger(app, LEVEL_INFO, to_exec);
-    execl(app->shell, app->shell, "-c", to_exec, NULL);
+    return last;
 }
-
