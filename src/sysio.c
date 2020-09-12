@@ -50,6 +50,8 @@ linked_list* create_path_list_from_dir(char *path, bool all, bool only_files, pa
 
     closedir(directory);
 
+    linked_list_quick_sort(response, 0, linked_list_size(response)-1, path_list_compare);;
+
     return response;
 }
 

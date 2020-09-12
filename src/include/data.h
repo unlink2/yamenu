@@ -7,6 +7,9 @@
 
 #include "path.h"
 
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#define MAX(X, Y) (((X) < (Y)) ? (Y) : (X))
+
 // default value for nox flag
 #define YAMENU_NOX_DEFAULT false
 
@@ -25,7 +28,14 @@ typedef struct linked_list {
     struct linked_list *next;
 } linked_list;
 
-typedef bool (linked_list_compare)(linked_list *, linked_list *);
+/**
+ * Comparison function
+ * returns:
+ *  0 if equal
+ *  < 0 if 2nd item is greater
+ *  > 0 if 1st item is greater
+ */
+typedef int (linked_list_compare)(linked_list *, linked_list *);
 
 /**
  * Application settings object
@@ -93,7 +103,7 @@ bool linked_list_swap(linked_list *list, size_t index1, size_t index2);
  * compare:
  *  a comparison function for the list items
  */
-void linked_list_quick_sort(linked_list *list, linked_list_compare compare);
+void linked_list_quick_sort(linked_list *list, size_t low, size_t high, linked_list_compare compare);
 
 // TODO implement quicksort for linked list. This requires a way to swap values for linekd list.
 // it should only swap the generic void ptr and not the acual list entries. This preserves the head
@@ -124,6 +134,9 @@ linked_list* create_path_list(char *input, char separator);
  *  A new linked list with paths containing the search term
  */
 linked_list* filter_path_list(linked_list *list, char *search);
+
+int path_list_compare(linked_list *l1, linked_list *l2);
+int string_sort_helper(char *l1, char *l2);
 
 /**
  * Builds a command based on the global application settings

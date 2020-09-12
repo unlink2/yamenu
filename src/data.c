@@ -83,7 +83,35 @@ bool linked_list_swap(linked_list *list, size_t index1, size_t index2) {
     return true;
 }
 
-void linked_list_quick_sort(linked_list *list, linked_list_compare compare) {
+size_t linked_list_pivot(linked_list *list, size_t low, size_t high, linked_list_compare compare) {
+    linked_list *piv = linked_list_get(list, high);
+    size_t index = (low - 1);
+
+    for (size_t i = low; i < high; i++) {
+        linked_list *current = linked_list_get(list, i);
+        if (compare(piv, current) > 0) {
+            index++;
+            linked_list_swap(list, index, i);
+        }
+    }
+    linked_list_swap(list, index+1, high);
+
+    return index+1;
+}
+
+void linked_list_quick_sort(linked_list *list, size_t low, size_t high, linked_list_compare compare) {
+    if (high == 0) {
+        return;
+    }
+    if (low < high) {
+        int pi = linked_list_pivot(list, low, high, compare);
+        // prevent underflwo if high
+        if (pi == 0) {
+            return;
+        }
+        linked_list_quick_sort(list, low, pi-1, compare);
+        linked_list_quick_sort(list, pi, high, compare);
+    }
 }
 
 void linked_list_free(linked_list *list) {
@@ -132,6 +160,26 @@ linked_list* filter_path_list(linked_list *list, char *search) {
     }
 
     return head;
+}
+
+int path_list_compare(linked_list *l1, linked_list *l2) {
+    return string_sort_helper(l1->fp->path, l2->fp->path);
+}
+
+int string_sort_helper(char *l1, char *l2) {
+    size_t len1 = strlen(l1);
+    size_t len2 = strlen(l2);
+    size_t min_len = MIN(len1, len2);
+
+    for (size_t i = 0; i < min_len; i++) {
+        if (l1[i] > l2[i]) {
+            return 1; // greater
+        } else if (l1[i] < l2[i]) {
+            return -1; // smaller
+        }
+    }
+
+    return len2-len1; // equal, but different lenght?
 }
 
 char* build_command(yamenu_app *app, file_path *path) {

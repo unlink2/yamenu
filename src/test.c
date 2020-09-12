@@ -306,6 +306,49 @@ static void test_linked_list_swap(void **state) {
     linked_list_free(list);
 }
 
+// this also tests path_list_compare
+static void test_string_sort_helper(void **state) {
+    // equality
+    assert_int_equal(string_sort_helper("test", "test"), 0);
+
+    // b is greater than a
+    assert_int_equal(string_sort_helper("BCE", "ABC"), 1);
+    assert_int_equal(string_sort_helper("acc", "abc"), 1);
+
+    // a is greater
+    assert_int_equal(string_sort_helper("ABC", "BCE"), -1);
+    assert_int_equal(string_sort_helper("abc", "acc"), -1);
+
+    // equal but different lenght
+    assert_int_equal(string_sort_helper("test", "testab"), 2);
+    assert_int_equal(string_sort_helper("testab", "test"), -2);
+}
+
+// test compare function for quick sort test
+int test_compare(linked_list *l1, linked_list *l2) {
+    return *(int*)l1->generic - *(int*)l2->generic;
+}
+
+static void test_linked_list_quick_sort(void **state) {
+    // attempt to sort a list of integers
+    int arr[] = {10, 7, 8, 9, 1, 5};
+
+    // add to linked list
+    linked_list *list = linked_list_create(&arr[0]);
+    for (int i = 1; i < 6; i++) {
+        linked_list_push(list, &arr[i]);
+    }
+
+    linked_list_quick_sort(list, 0, linked_list_size(list)-1, test_compare);
+
+    int expected[] = {1, 5, 7, 8, 9, 10};
+    for (int i = 0; i < linked_list_size(list); i++) {
+        assert_int_equal(*(int*)linked_list_get(list, i)->generic, expected[i]);
+    }
+
+    linked_list_free(list);
+}
+
 int main() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_parse_args),
@@ -317,7 +360,9 @@ int main() {
         cmocka_unit_test(test_should_log),
         cmocka_unit_test(test_basefilename),
         cmocka_unit_test(test_strstr_last),
-        cmocka_unit_test(test_linked_list_swap)
+        cmocka_unit_test(test_linked_list_swap),
+        cmocka_unit_test(test_string_sort_helper),
+        cmocka_unit_test(test_linked_list_quick_sort)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
