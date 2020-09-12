@@ -25,6 +25,8 @@ typedef struct linked_list {
     struct linked_list *next;
 } linked_list;
 
+typedef bool (linked_list_compare)(linked_list *, linked_list *);
+
 /**
  * Application settings object
  */
@@ -83,6 +85,15 @@ size_t linked_list_size(linked_list *list);
  * Swaps values between index1 and index2
  */
 bool linked_list_swap(linked_list *list, size_t index1, size_t index2);
+
+/**
+ * Quicksort for linked lists
+ * list:
+ *  The list
+ * compare:
+ *  a comparison function for the list items
+ */
+void linked_list_quick_sort(linked_list *list, linked_list_compare compare);
 
 // TODO implement quicksort for linked list. This requires a way to swap values for linekd list.
 // it should only swap the generic void ptr and not the acual list entries. This preserves the head

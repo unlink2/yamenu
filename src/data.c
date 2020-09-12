@@ -83,6 +83,9 @@ bool linked_list_swap(linked_list *list, size_t index1, size_t index2) {
     return true;
 }
 
+void linked_list_quick_sort(linked_list *list, linked_list_compare compare) {
+}
+
 void linked_list_free(linked_list *list) {
     while (list) {
         linked_list *to_free = list;
