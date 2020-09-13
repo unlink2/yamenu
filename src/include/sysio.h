@@ -5,6 +5,8 @@
 #include "path.h"
 #include <stdio.h>
 
+#define PATH_SEP '/'
+
 typedef char* (path_filter_fn)(const char *);
 
 /**

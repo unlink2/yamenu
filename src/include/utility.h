@@ -30,4 +30,6 @@ void my_free(void *);
  */
 char *str_replace(const char *str, const char *key, const char *value);
 
+char* path_combine(char *base, char *append, char sep);
+
 #endif

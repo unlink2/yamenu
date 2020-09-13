@@ -3,7 +3,7 @@
 #include "include/sysio.h"
 #include <limits.h>
 
-file_path* file_path_create(char *path, char *pwd) {
+file_path* file_path_create(char *path) {
     file_path *fp = my_malloc(sizeof(file_path));
     fp->path = path;
 
@@ -15,31 +15,23 @@ file_path* file_path_create(char *path, char *pwd) {
     fp->name = NULL;
 
 #ifdef YAMENU_PARSE_DESKTOP_ENTRY
+    // TODO remove this from path_create
     char *ext = fileext(path);
     if (ext) {
         if (strcmp(ext, ".desktop") == 0) {
             // special case for .desktop files. parse them as ini
             // first read the file
-
-            // if a pwd is provided combine with path, otherwise just read path
-            char cwd[PATH_MAX];
-            getcwd(cwd, PATH_MAX);
-            if (pwd) {
-                // chdir
-                chdir(pwd);
-            }
             // now read file
             linked_list *list = read_file(path);
             if (list) {
                 fp->executable = parse_desktop_entry("Exec=", list);
                 fp->name = parse_desktop_entry("Name=", list);
-
+                printf("%s %p\n", path, fp->executable);
                 for (size_t i = 0; i < linked_list_size(list); i++) {
                     my_free(linked_list_get(list, i)->generic);
                 }
                 linked_list_free(list);
             }
-            chdir(cwd); // change path back
 
         }
         my_free(ext);
@@ -92,6 +84,8 @@ char* parse_desktop_entry(char *key, linked_list *entry) {
         ""
     };
 
+    const char comment = '#';
+    size_t first_line = 0;
     size_t entryc = linked_list_size(entry);
 
     if (entryc == 0) {
@@ -99,11 +93,17 @@ char* parse_desktop_entry(char *key, linked_list *entry) {
     }
     // first line needs to be [Desktop Entry]
 
-    if (strcmp(linked_list_get(entry, 0)->generic, "[Desktop Entry]") != 0) {
-        return NULL; // not a desktop entry
+    while (linked_list_get(entry, first_line)->str[0] == comment
+            || strlen(linked_list_get(entry, first_line)->str) == 0) {
+        first_line++;
     }
 
-    for (size_t i = 1; i < entryc; i++) {
+    if (strcmp(linked_list_get(entry, first_line)->generic, "[Desktop Entry]") != 0) {
+        return NULL; // not a desktop entry
+    }
+    
+    first_line++;
+    for (size_t i = first_line; i < entryc; i++) {
         size_t keylen = strlen(key);
         char *entry_iter = linked_list_get(entry, i)->generic;
         if (strncmp(key, entry_iter, keylen) == 0) {

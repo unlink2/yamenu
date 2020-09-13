@@ -154,3 +154,20 @@ char *str_replace(const char *str, const char *key, const char *value) {
 
     return newstr;
 }
+
+char* path_combine(char *base, char *append, char sep) {
+    int baselen = strlen(base);
+    int appendlen = strlen(append);
+    if (base[baselen-1] == sep) {
+        // remove separating char from end
+        baselen--;
+    }
+    if (append[0] == sep) {
+        append++;
+        appendlen--;
+    }
+    // make new string
+    char *newpath = my_malloc(baselen + appendlen + 2);
+    sprintf(newpath, "%*.*s%c%*.*s", baselen, baselen, base, sep, appendlen, appendlen, append);
+    return newpath;
+}

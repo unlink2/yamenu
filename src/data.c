@@ -89,7 +89,7 @@ size_t linked_list_pivot(linked_list *list, size_t low, size_t high, linked_list
 
     for (size_t i = low; i < high; i++) {
         linked_list *current = linked_list_get(list, i);
-        if (compare(piv, current) > 0) {
+        if (compare(piv, current) >= 0) {
             index++;
             linked_list_swap(list, index, i);
         }
@@ -123,13 +123,13 @@ void linked_list_free(linked_list *list) {
 }
 
 linked_list* create_path_list(char *input, char separator) {
-    linked_list *head = linked_list_create(file_path_create(input, NULL));
+    linked_list *head = linked_list_create(file_path_create(input));
     linked_list *last = head;
 
     while (input[0] != '\0') {
         if (input[0] == separator) {
             input[0] = '\0';
-            last = linked_list_push(last, file_path_create(input+1, NULL));
+            last = linked_list_push(last, file_path_create(input+1));
         }
 
         input += 1;
@@ -162,9 +162,8 @@ linked_list* filter_path_list(linked_list *list, char *search) {
     return head;
 }
 
-// TODO sort by real name is available
 int path_list_compare(linked_list *l1, linked_list *l2) {
-    return string_sort_helper(l1->fp->path, l2->fp->path);
+    return string_sort_helper(file_path_get_real_name(l1->fp), file_path_get_real_name(l2->fp));
 }
 
 int string_sort_helper(char *l1, char *l2) {

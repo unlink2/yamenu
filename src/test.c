@@ -217,7 +217,7 @@ static void test_build_command(void **state) {
     app.prefix = "prefix for app";
     app.postfix = "Test postfix";
 
-    file_path *path = file_path_create("/test/path", NULL);
+    file_path *path = file_path_create("/test/path");
 
     char *to_exec = build_command(&app, path);
 
@@ -359,17 +359,17 @@ int test_compare(linked_list *l1, linked_list *l2) {
 
 static void test_linked_list_quick_sort(void **state) {
     // attempt to sort a list of integers
-    int arr[] = {10, 7, 8, 9, 1, 5};
+    int arr[] = {10, 7, 8, 9, 1, 5, 5};
 
     // add to linked list
     linked_list *list = linked_list_create(&arr[0]);
-    for (int i = 1; i < 6; i++) {
+    for (int i = 1; i < 7; i++) {
         linked_list_push(list, &arr[i]);
     }
 
     linked_list_quick_sort(list, 0, linked_list_size(list)-1, test_compare);
 
-    int expected[] = {1, 5, 7, 8, 9, 10};
+    int expected[] = {1, 5, 5, 7, 8, 9, 10};
     for (int i = 0; i < linked_list_size(list); i++) {
         assert_int_equal(*(int*)linked_list_get(list, i)->generic, expected[i]);
     }
@@ -436,12 +436,34 @@ static void test_parse_desktop_entry(void **state) {
     linked_list_free(invalid_entry);
 
     // valid entry
-    linked_list *valid_entry = linked_list_create("[Desktop Entry]");
-    linked_list_push(valid_entry, "Exec=App %% %f %F %% %u %U %d %D %n %N %k %v");
-    char *parsed = parse_desktop_entry("Exec=", valid_entry);
-    assert_string_equal("App %   %        ", parsed);
-    my_free(parsed);
-    linked_list_free(valid_entry);
+    {
+        linked_list *valid_entry = linked_list_create("[Desktop Entry]");
+        linked_list_push(valid_entry, "Exec=App %% %f %F %% %u %U %d %D %n %N %k %v");
+        char *parsed = parse_desktop_entry("Exec=", valid_entry);
+        assert_string_equal("App %   %        ", parsed);
+        my_free(parsed);
+        linked_list_free(valid_entry);
+    }
+    {
+        linked_list *valid_entry = linked_list_create("# Comment");
+        linked_list_push(valid_entry, "");
+        linked_list_push(valid_entry, "[Desktop Entry]");
+        linked_list_push(valid_entry, "Exec=App %% %f %F %% %u %U %d %D %n %N %k %v");
+        char *parsed = parse_desktop_entry("Exec=", valid_entry);
+        assert_string_equal("App %   %        ", parsed);
+        my_free(parsed);
+        linked_list_free(valid_entry);
+    }
+}
+
+static void test_path_combine(void **state) {
+    char *p1 = path_combine("/test/", "/append", '/');
+    assert_string_equal("/test/append", p1);
+    my_free(p1);
+
+    char *p2 = path_combine("/test", "append", '/');
+    assert_string_equal("/test/append", p2);
+    my_free(p2);
 }
 
 int main() {
@@ -459,7 +481,8 @@ int main() {
         cmocka_unit_test(test_string_sort_helper),
         cmocka_unit_test(test_linked_list_quick_sort),
         cmocka_unit_test(test_str_replace),
-        cmocka_unit_test(test_parse_desktop_entry)
+        cmocka_unit_test(test_parse_desktop_entry),
+        cmocka_unit_test(test_path_combine)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

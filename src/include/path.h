@@ -27,7 +27,7 @@ typedef struct file_path {
  *  If pwd is provided path must be just the file name
  *  in this case .desktop files are parsed in a special way
  */ 
-file_path* file_path_create(char *path, char *pwd);
+file_path* file_path_create(char *path);
 
 /**
  * Parses a .desktop file
