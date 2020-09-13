@@ -112,6 +112,11 @@ void linked_list_quick_sort(linked_list *list, size_t low, size_t high, linked_l
 // it should only swap the generic void ptr and not the acual list entries. This preserves the head
 
 /**
+ * Concatinates two linked lists
+ */
+linked_list* linked_list_cat(linked_list *l1, linked_list *l2);
+
+/**
  * Frees all linked_list objects in a list.
  * Does not fre the actual path strings.
  */

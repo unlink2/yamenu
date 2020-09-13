@@ -114,6 +114,15 @@ void linked_list_quick_sort(linked_list *list, size_t low, size_t high, linked_l
     }
 }
 
+linked_list* linked_list_cat(linked_list *l1, linked_list *l2) {
+    linked_list *head = l1;
+    while (l1->next) {
+        l1 = l1->next;
+    }
+    l1->next = l2;
+    return head;
+}
+
 void linked_list_free(linked_list *list) {
     while (list) {
         linked_list *to_free = list;

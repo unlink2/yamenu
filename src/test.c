@@ -159,6 +159,20 @@ static void test_linked_list(void **state) {
     linked_list_free(phead);
     linked_list_free(p1);
     linked_list_free(p2);
+
+    // try cat
+    linked_list *c1 = linked_list_create("p1");
+    linked_list_push(c1, "p2");
+    linked_list *c2 = linked_list_create("p3");
+    linked_list_push(c2, "p4");
+    linked_list *cat = linked_list_cat(c1, c2);
+
+    assert_int_equal(linked_list_size(cat), 4);
+    assert_string_equal(linked_list_get(cat, 0)->str, "p1");
+    assert_string_equal(linked_list_get(cat, 1)->str, "p2");
+    assert_string_equal(linked_list_get(cat, 2)->str, "p3");
+    assert_string_equal(linked_list_get(cat, 3)->str, "p4");
+    linked_list_free(cat);
 }
 
 static void test_create_path_list(void **state) {
