@@ -26,7 +26,6 @@ file_path* file_path_create(char *path) {
             if (list) {
                 fp->executable = parse_desktop_entry("Exec=", list);
                 fp->name = parse_desktop_entry("Name=", list);
-                printf("%s %p\n", path, fp->executable);
                 for (size_t i = 0; i < linked_list_size(list); i++) {
                     my_free(linked_list_get(list, i)->generic);
                 }
