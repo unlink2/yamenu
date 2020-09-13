@@ -184,7 +184,13 @@ int string_sort_helper(char *l1, char *l2) {
 
 char* build_command(yamenu_app *app, file_path *path) {
     char *to_exec = my_malloc(strlen(app->prefix) + strlen(path->path) + strlen(app->postfix) + 5);
-    sprintf(to_exec, "%s %s %s", app->prefix, path->path, app->postfix);
+
+    char *executable = path->path;
+    if (path->executable) {
+        path->executable = path->executable;
+    }
+
+    sprintf(to_exec, "%s %s %s", app->prefix, executable, app->postfix);
     return to_exec;
 }
 
@@ -193,8 +199,7 @@ char* basefilename(const char *filename) {
         return NULL;
     }
     char *s = strstr_last(filename, ".");
-    if (strcmp(filename, ".") == 0
-            || strcmp(filename, "..") == 0
+    if (strcmp(filename, "..") == 0
             || filename[0] == '.') {
         return strdup(filename);
     } else if (!s) {
@@ -204,6 +209,21 @@ char* basefilename(const char *filename) {
         return strndup(filename, s-filename);
     }
 }
+
+char *fileext(const char *filename) {
+    if (!filename) {
+        return NULL;
+    }
+    char *s = strstr_last(filename, ".");
+    if(strcmp(filename, "..") == 0
+            || filename[0] == '.') {
+        return strdup(filename);
+    } else if (!s) {
+        return NULL;
+    } else {
+        // only copy after '.'
+        return strdup(s);
+    }}
 
 char* strstr_last(const char *str, const char *search) {
     char *current = NULL;

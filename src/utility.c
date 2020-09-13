@@ -19,7 +19,7 @@ static struct argp_option options[] = {
     { "verbose", 'v', NULL, OPTION_ARG_OPTIONAL, "Enables verbose logging."},
     { "search", 'S', "path", OPTION_ARG_OPTIONAL, "Lists a given directory. This only works is --paths is not provided."},
     { "all", 'a', NULL, OPTION_ARG_OPTIONAL, "Include hidden files in the list"},
-    { "base", 'b', NULL, OPTION_ARG_OPTIONAL, "Do not just return file's basename"},
+    { "base", 'b', NULL, OPTION_ARG_OPTIONAL, "Return path's basename only (Removes extension)"},
     { 0 }
 };
 
@@ -52,7 +52,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             arguments->show_hidden = true;
             break;
         case 'b':
-            arguments->base_name_only = false;
+            arguments->base_name_only = true;
             break;
         case 'S':
             arguments->search_path = arg;
@@ -83,7 +83,7 @@ struct yamenu_app parse_args(int argc, char **argv) {
     arguments.prefix = "";
     arguments.postfix = "";
     arguments.log_level = LEVEL_ERRROR;
-    arguments.base_name_only = true;
+    arguments.base_name_only = false;
     arguments.show_hidden = false;
     arguments.search_path = YAMENU_DEFAULT_SEARCH_PATH;
 
@@ -126,4 +126,31 @@ void my_free(void *ptr) {
     if (ptr != NULL) {
         free(ptr);
     }
+}
+
+char *str_replace(const char *str, const char *key, const char *value) {
+    // match for token
+    char *match = strstr(str, key);
+
+    if (!match) {
+        return NULL;
+    }
+
+    // should be the exact lenght + 1 for \0 just in case
+    int newlen = strlen(value) + strlen(str) - strlen(key) + 1;
+    // now we can replace!
+    // and by replace I mean create a new string
+    // because there may not be enough space
+    char *newstr = my_malloc(newlen * sizeof(char));
+
+    // copy first bit of string until the end
+    const int first_part = match - str;
+    // skip the label to be replaced + 1 for space
+    const int second_part = first_part + strlen(key);
+
+    strncat(newstr, str, first_part);
+    strncat(newstr, value, first_part + strlen(value));
+    strncat(newstr, str + second_part, newlen);
+
+    return newstr;
 }

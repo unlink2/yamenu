@@ -46,7 +46,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.log_level, 0);
         assert_string_equal(arguments.search_path, "testpath");
         assert_true(arguments.show_hidden);
-        assert_false(arguments.base_name_only);
+        assert_true(arguments.base_name_only);
 
         yamenu_app_free(&arguments);
     }
@@ -74,7 +74,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.log_level, 0);
         assert_string_equal(arguments.search_path, "testpath");
         assert_true(arguments.show_hidden);
-        assert_false(arguments.base_name_only);
+        assert_true(arguments.base_name_only);
 
         yamenu_app_free(&arguments);
     }
@@ -93,7 +93,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.log_level, 3);
         assert_string_equal(arguments.search_path, YAMENU_DEFAULT_SEARCH_PATH);
         assert_false(arguments.show_hidden);
-        assert_true(arguments.base_name_only);
+        assert_false(arguments.base_name_only);
 
         yamenu_app_free(&arguments);
     }
@@ -239,31 +239,59 @@ static void test_should_log(void **state) {
 }
 
 static void test_basefilename(void **state) {
-    char *t1 = basefilename("test.txt");
-    assert_string_equal(t1, "test");
-    my_free(t1);
+    {
+        char *t1 = basefilename("test.txt");
+        assert_string_equal(t1, "test");
+        my_free(t1);
 
-    char *t2 = basefilename("test.txt.dat");
-    assert_string_equal(t2, "test.txt");
-    my_free(t2);
+        char *t2 = basefilename("test.txt.dat");
+        assert_string_equal(t2, "test.txt");
+        my_free(t2);
 
-    char *t3 = basefilename("test_no_ext");
-    assert_string_equal(t3, "test_no_ext");
-    my_free(t3);
+        char *t3 = basefilename("test_no_ext");
+        assert_string_equal(t3, "test_no_ext");
+        my_free(t3);
 
-    char *this_dir = basefilename(".");
-    assert_string_equal(this_dir, ".");
-    my_free(this_dir);
+        char *this_dir = basefilename(".");
+        assert_string_equal(this_dir, ".");
+        my_free(this_dir);
 
-    char *parent_dir = basefilename("..");
-    assert_string_equal(parent_dir, "..");
-    my_free(parent_dir);
+        char *parent_dir = basefilename("..");
+        assert_string_equal(parent_dir, "..");
+        my_free(parent_dir);
 
-    char *hidden = basefilename(".hidden");
-    assert_string_equal(hidden, ".hidden");
-    my_free(hidden);
+        char *hidden = basefilename(".hidden");
+        assert_string_equal(hidden, ".hidden");
+        my_free(hidden);
 
-    assert_null(basefilename(NULL));
+        assert_null(basefilename(NULL));
+    }
+    {
+        char *t1 = fileext("test.txt");
+        assert_string_equal(t1, ".txt");
+        my_free(t1);
+
+        char *t2 = fileext("test.txt.dat");
+        assert_string_equal(t2, ".dat");
+        my_free(t2);
+
+        char *t3 = fileext("test_no_ext");
+        assert_null(t3);
+
+        char *this_dir = fileext(".");
+        assert_string_equal(this_dir, ".");
+        my_free(this_dir);
+
+        char *parent_dir = fileext("..");
+        assert_string_equal(parent_dir, "..");
+        my_free(parent_dir);
+
+        char *hidden = fileext(".hidden");
+        assert_string_equal(hidden, ".hidden");
+        my_free(hidden);
+
+        assert_null(basefilename(NULL));
+    }
 }
 
 static void test_strstr_last(void **state) {
@@ -349,6 +377,68 @@ static void test_linked_list_quick_sort(void **state) {
     linked_list_free(list);
 }
 
+static void test_str_replace(void **state) {
+    // test invalid token
+    {
+        char *str = str_replace("Test token", "key", "value");
+        assert_null(str);
+    }
+
+    // shorter than original
+
+    // in the middle of the string
+    {
+        char *str = str_replace("This is a test %% string", "%%", "%");
+        assert_string_equal("This is a test % string", str);
+        my_free(str);
+    }
+    // at the start
+    {
+        char *str = str_replace("%% This is a test string", "%%", "%");
+        assert_string_equal("% This is a test string", str);
+        my_free(str);
+    }
+    // end of string
+    {
+        char *str = str_replace("This is a test string %%", "%%", "%");
+        assert_string_equal("This is a test string %", str);
+        my_free(str);
+    }
+
+    // longer than original
+    // in the middle of the string
+    {
+        char *str = str_replace("This is a test %f string", "%f", "Longer");
+        assert_string_equal("This is a test Longer string", str);
+        my_free(str);
+    }
+    // at the start
+    {
+        char *str = str_replace("%f This is a test string", "%f", "Longer");
+        assert_string_equal("Longer This is a test string", str);
+        my_free(str);
+    }
+    // end of string
+    {
+        char *str = str_replace("This is a test string %f", "%f", "Longer");
+        assert_string_equal("This is a test string Longer", str);
+        my_free(str);
+    }
+
+}
+
+static void test_parse_desktop_entry(void **state) {
+    // invalid entry
+    const char *invaliid_entry[] = {"Not", "A", "Entry"};
+    assert_null(parse_desktop_entry("Application", (char**)invaliid_entry, 3));
+
+    // valid entry
+    const char *valid_entry[] = {"[Desktop Entry]", "Exec=App %% %f %F %% %u %U %d %D %n %N %k %v"};
+    char *parsed = parse_desktop_entry("Exec=", (char **)valid_entry, 2);
+    assert_string_equal("App %   %        ", parsed);
+    my_free(parsed);
+}
+
 int main() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_parse_args),
@@ -362,7 +452,9 @@ int main() {
         cmocka_unit_test(test_strstr_last),
         cmocka_unit_test(test_linked_list_swap),
         cmocka_unit_test(test_string_sort_helper),
-        cmocka_unit_test(test_linked_list_quick_sort)
+        cmocka_unit_test(test_linked_list_quick_sort),
+        cmocka_unit_test(test_str_replace),
+        cmocka_unit_test(test_parse_desktop_entry)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <iniparser.h>
 
 #include "path.h"
 
@@ -15,6 +16,7 @@
 
 // default location of desktop applications
 #define YAMENU_DEFAULT_SEARCH_PATH "/usr/share/applications"
+
 
 /**
  * Linked list of generic objects
@@ -153,6 +155,13 @@ char* build_command(yamenu_app *app, file_path *path);
  *  returns hidden files as is (files starting with '.')
  */
 char* basefilename(const char *filename);
+/**
+ * Oposite of basefilename
+ * returns:
+ *  the extension
+ *  always returns '.' and '..' as is
+ */
+char *fileext(const char *filename);
 
 /**
  * Works like strstr but finds the last occurange of string

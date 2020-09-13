@@ -22,4 +22,12 @@ void* my_malloc(size_t);
 void* my_realloc(void *, size_t);
 void my_free(void *);
 
+/**
+ * Replaces a key with a new value.
+ * returns:
+ *  NULL if the key is not contained in the string
+ *  a new pointer to a copy of the string with the new value inseted in place of key
+ */
+char *str_replace(const char *str, const char *key, const char *value);
+
 #endif
