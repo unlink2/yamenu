@@ -123,13 +123,13 @@ void linked_list_free(linked_list *list) {
 }
 
 linked_list* create_path_list(char *input, char separator) {
-    linked_list *head = linked_list_create(file_path_create(input));
+    linked_list *head = linked_list_create(file_path_create(input, NULL));
     linked_list *last = head;
 
     while (input[0] != '\0') {
         if (input[0] == separator) {
             input[0] = '\0';
-            last = linked_list_push(last, file_path_create(input+1));
+            last = linked_list_push(last, file_path_create(input+1, NULL));
         }
 
         input += 1;
@@ -162,6 +162,7 @@ linked_list* filter_path_list(linked_list *list, char *search) {
     return head;
 }
 
+// TODO sort by real name is available
 int path_list_compare(linked_list *l1, linked_list *l2) {
     return string_sort_helper(l1->fp->path, l2->fp->path);
 }
@@ -187,7 +188,7 @@ char* build_command(yamenu_app *app, file_path *path) {
 
     char *executable = path->path;
     if (path->executable) {
-        path->executable = path->executable;
+        executable = path->executable;
     }
 
     sprintf(to_exec, "%s %s %s", app->prefix, executable, app->postfix);

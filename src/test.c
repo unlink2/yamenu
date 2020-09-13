@@ -217,7 +217,7 @@ static void test_build_command(void **state) {
     app.prefix = "prefix for app";
     app.postfix = "Test postfix";
 
-    file_path *path = file_path_create("/test/path");
+    file_path *path = file_path_create("/test/path", NULL);
 
     char *to_exec = build_command(&app, path);
 
@@ -429,14 +429,19 @@ static void test_str_replace(void **state) {
 
 static void test_parse_desktop_entry(void **state) {
     // invalid entry
-    const char *invaliid_entry[] = {"Not", "A", "Entry"};
-    assert_null(parse_desktop_entry("Application", (char**)invaliid_entry, 3));
+    linked_list *invalid_entry = linked_list_create("Not");
+    linked_list_push(invalid_entry, "An");
+    linked_list_push(invalid_entry, "Entry");
+    assert_null(parse_desktop_entry("Application", invalid_entry));
+    linked_list_free(invalid_entry);
 
     // valid entry
-    const char *valid_entry[] = {"[Desktop Entry]", "Exec=App %% %f %F %% %u %U %d %D %n %N %k %v"};
-    char *parsed = parse_desktop_entry("Exec=", (char **)valid_entry, 2);
+    linked_list *valid_entry = linked_list_create("[Desktop Entry]");
+    linked_list_push(valid_entry, "Exec=App %% %f %F %% %u %U %d %D %n %N %k %v");
+    char *parsed = parse_desktop_entry("Exec=", valid_entry);
     assert_string_equal("App %   %        ", parsed);
     my_free(parsed);
+    linked_list_free(valid_entry);
 }
 
 int main() {

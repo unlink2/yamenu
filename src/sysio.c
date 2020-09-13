@@ -41,16 +41,16 @@ linked_list* create_path_list_from_dir(char *path, bool all, bool only_files, pa
         }
 
         if (!response) {
-            response = linked_list_create(file_path_create(filtered));
+            response = linked_list_create(file_path_create(filtered, path));
             last = response;
         } else {
-            last = linked_list_push(last, file_path_create(filtered));
+            last = linked_list_push(last, file_path_create(filtered, path));
         }
     }
 
     closedir(directory);
 
-    linked_list_quick_sort(response, 0, linked_list_size(response)-1, path_list_compare);;
+    linked_list_quick_sort(response, 0, linked_list_size(response)-1, path_list_compare);
 
     return response;
 }
@@ -89,4 +89,29 @@ void execute_path(yamenu_app *app, file_path *path) {
     char *to_exec = build_command(app, path);
     yalogger(app, LEVEL_INFO, to_exec);
     execl(app->shell, app->shell, "-c", to_exec, NULL);
+}
+
+linked_list* read_file(char *path) {
+    FILE *fp = fopen(path, "r");
+    if (fp == NULL) {
+        return NULL;
+    }
+
+    char *line = NULL;
+    size_t read;
+    size_t len;
+
+    linked_list *result = NULL;
+    while ((read = getline(&line, &len, fp)) != -1) {
+        if (line[strlen(line)-1] == '\n') {
+            line[strlen(line)-1] = '\0';
+        }
+        if (result) {
+            linked_list_push(result, strdup(line));
+        } else {
+            result = linked_list_create(strdup(line));
+        }
+    }
+
+    return result;
 }
