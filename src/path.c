@@ -12,7 +12,7 @@ file_path* file_path_create(char *path) {
     fp->terminal = false;
     fp->name = NULL;
 
-#ifdef YAMEU_PARSE_DESKTOP_ENTRY
+#ifdef YAMENU_PARSE_DESKTOP_ENTRY
     char *ext = fileext(path);
     if (ext) {
         if (strcmp(ext, ".desktop") == 0) {
