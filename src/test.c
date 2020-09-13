@@ -33,9 +33,10 @@ static void test_parse_args(void **state) {
             "-v",
             "-Stestpath",
             "-b",
-            "-a"
+            "-a",
+            "-D"
         };
-        int argc = 10;
+        int argc = 11;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -47,6 +48,7 @@ static void test_parse_args(void **state) {
         assert_string_equal(arguments.search_path, "testpath");
         assert_true(arguments.show_hidden);
         assert_true(arguments.base_name_only);
+        assert_true(arguments.dry_run);
 
         yamenu_app_free(&arguments);
     }
@@ -61,9 +63,10 @@ static void test_parse_args(void **state) {
             "--verbose",
             "--search=testpath",
             "--base",
-            "--all"
+            "--all",
+            "--dry"
         };
-        int argc = 10;
+        int argc = 11;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -75,6 +78,7 @@ static void test_parse_args(void **state) {
         assert_string_equal(arguments.search_path, "testpath");
         assert_true(arguments.show_hidden);
         assert_true(arguments.base_name_only);
+        assert_true(arguments.dry_run);
 
         yamenu_app_free(&arguments);
     }
@@ -94,6 +98,7 @@ static void test_parse_args(void **state) {
         assert_string_equal(arguments.search_path, YAMENU_DEFAULT_SEARCH_PATH);
         assert_false(arguments.show_hidden);
         assert_false(arguments.base_name_only);
+        assert_false(arguments.dry_run);
 
         yamenu_app_free(&arguments);
     }

@@ -20,6 +20,7 @@ static struct argp_option options[] = {
     { "search", 'S', "path", OPTION_ARG_OPTIONAL, "Lists a given directory. This only works is --paths is not provided."},
     { "all", 'a', NULL, OPTION_ARG_OPTIONAL, "Include hidden files in the list"},
     { "base", 'b', NULL, OPTION_ARG_OPTIONAL, "Return path's basename only (Removes extension)"},
+    { "dry", 'D', NULL, OPTION_ARG_OPTIONAL, "Do not execute the command."},
     { 0 }
 };
 
@@ -57,6 +58,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'S':
             arguments->search_path = arg;
             break;
+        case 'D':
+            arguments->dry_run = true;
+            break;
         case ARGP_KEY_ARG:
             return 0;
         default:
@@ -86,6 +90,7 @@ struct yamenu_app parse_args(int argc, char **argv) {
     arguments.base_name_only = false;
     arguments.show_hidden = false;
     arguments.search_path = YAMENU_DEFAULT_SEARCH_PATH;
+    arguments.dry_run = false;
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 

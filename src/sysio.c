@@ -59,6 +59,14 @@ linked_list* create_path_list_from_dir(char *path, bool all, bool only_files, pa
 }
 
 void execute_path(yamenu_app *app, file_path *path) {
+    if (app->dry_run) {
+        // if it is a dry run just make the command  print it and return
+        char *to_exec = build_command(app, path);
+        yalogger(app, LEVEL_CRITICAL, to_exec);
+        my_free(to_exec);
+        return;
+    }
+
     // TODO double fork to get pid 1 as parent and close all open files
     // and re-open stdin, stdout and stderr
 

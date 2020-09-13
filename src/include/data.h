@@ -55,6 +55,7 @@ typedef struct yamenu_app {
     char *search_path;
     bool show_hidden;
     bool base_name_only;
+    bool dry_run;
 } yamenu_app;
 
 void yamenu_app_free(struct yamenu_app *app);
