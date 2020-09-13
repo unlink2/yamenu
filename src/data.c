@@ -131,14 +131,14 @@ void linked_list_free(linked_list *list) {
     }
 }
 
-linked_list* create_path_list(char *input, char separator) {
-    linked_list *head = linked_list_create(file_path_create(input));
+linked_list* create_path_list(char *input, char separator, bool no_desktop_entry) {
+    linked_list *head = linked_list_create(file_path_create(input, no_desktop_entry));
     linked_list *last = head;
 
     while (input[0] != '\0') {
         if (input[0] == separator) {
             input[0] = '\0';
-            last = linked_list_push(last, file_path_create(input+1));
+            last = linked_list_push(last, file_path_create(input+1, no_desktop_entry));
         }
 
         input += 1;

@@ -20,8 +20,11 @@ typedef char* (path_filter_fn)(const char *);
  * filter:
  *  Function pointer to a function that may filter the input.
  *  If NULL is provided strdup is used
+ * no_desktop_entry:
+ *  disables the automatic parsing of .desktop files
  */
-linked_list* create_path_list_from_dir(char *path, bool all, bool only_files, path_filter_fn *filter);
+linked_list* create_path_list_from_dir(char *path, bool all, bool only_files, path_filter_fn *filter,
+        bool no_desktop_entry);
 
 
 /**

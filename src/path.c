@@ -3,7 +3,7 @@
 #include "include/sysio.h"
 #include <limits.h>
 
-file_path* file_path_create(char *path) {
+file_path* file_path_create(char *path, bool no_desktop_entry) {
     file_path *fp = my_malloc(sizeof(file_path));
     fp->path = path;
 
@@ -18,7 +18,7 @@ file_path* file_path_create(char *path) {
     // TODO remove this from path_create
     char *ext = fileext(path);
     if (ext) {
-        if (strcmp(ext, ".desktop") == 0) {
+        if (strcmp(ext, ".desktop") == 0 && !no_desktop_entry) {
             // special case for .desktop files. parse them as ini
             // first read the file
             // now read file

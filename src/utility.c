@@ -11,16 +11,17 @@ const char *argp_program_bug_address = "<lukas@krickl.dev>";
 static char doc[] = "Yet another X launcher.";
 static char args_doc[] = "";
 static struct argp_option options[] = {
-    { "separator", 's', "char", OPTION_ARG_OPTIONAL, "Specify list separator. Defaults to ';'"},
-    { "paths", 'p', "paths", OPTION_ARG_OPTIONAL, "<separator> terminated list of paths."},
-    { "nox", 'n', 0, OPTION_ARG_OPTIONAL, "Run command line mode."},
-    { "prefix", 'P', "prefix", OPTION_ARG_OPTIONAL, "Added before every command."},
-    { "postfix", 'F', "postfix", OPTION_ARG_OPTIONAL, "Added after every command."},
-    { "verbose", 'v', NULL, OPTION_ARG_OPTIONAL, "Enables verbose logging."},
-    { "search", 'S', "path", OPTION_ARG_OPTIONAL, "Lists a given directory. This only works if --paths is not provided."},
+    { "separator", 's', "char", OPTION_ARG_OPTIONAL, "Specify list separator (Defaults is ';')"},
+    { "paths", 'p', "paths", OPTION_ARG_OPTIONAL, "<separator> terminated list of paths"},
+    { "nox", 'n', 0, OPTION_ARG_OPTIONAL, "Run command line modes"},
+    { "prefix", 'P', "prefix", OPTION_ARG_OPTIONAL, "Added before every command"},
+    { "postfix", 'F', "postfix", OPTION_ARG_OPTIONAL, "Added after every command"},
+    { "verbose", 'v', NULL, OPTION_ARG_OPTIONAL, "Enables verbose logging"},
+    { "search", 'S', "path", OPTION_ARG_OPTIONAL, "Lists a given directory. Mutually exclusive with --paths"},
     { "all", 'a', NULL, OPTION_ARG_OPTIONAL, "Include hidden files in the list"},
     { "base", 'b', NULL, OPTION_ARG_OPTIONAL, "Return path's basename only (Removes extension)"},
     { "dry", 'D', NULL, OPTION_ARG_OPTIONAL, "Do not execute the command."},
+    { "no-desktop-entry", 'N', NULL, OPTION_ARG_OPTIONAL, "Disable the parsing of .desktop files"},
     { 0 }
 };
 
@@ -61,6 +62,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'D':
             arguments->dry_run = true;
             break;
+        case 'N':
+            arguments->no_desktop_entry = true;
+            break;
         case ARGP_KEY_ARG:
             return 0;
         default:
@@ -91,6 +95,7 @@ struct yamenu_app parse_args(int argc, char **argv) {
     arguments.show_hidden = false;
     arguments.search_path = YAMENU_DEFAULT_SEARCH_PATH;
     arguments.dry_run = false;
+    arguments.no_desktop_entry = false;
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
@@ -101,15 +106,15 @@ void yamenu_app_init_paths(yamenu_app *app) {
     // NULL check is required because
     // an empty input may yield NULL
     if (app->input_list) {
-        app->path_list = create_path_list(app->input_list, app->separator);
+        app->path_list = create_path_list(app->input_list, app->separator, app->no_desktop_entry);
     } else {
         // if an empty list was provided list the search directory instead
 
         // TODO unit test this
-        linked_list *search_paths = create_path_list(app->search_path, app->separator);
+        linked_list *search_paths = create_path_list(app->search_path, app->separator, app->no_desktop_entry);
         while (search_paths) {
             linked_list *next = create_path_list_from_dir(search_paths->fp->path, app->show_hidden,
-                true, app->base_name_only ? basefilename : NULL);
+                true, app->base_name_only ? basefilename : NULL, app->no_desktop_entry);
             if (!app->path_list) {
                 app->path_list = next;
             } else {

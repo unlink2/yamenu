@@ -56,6 +56,7 @@ typedef struct yamenu_app {
     bool show_hidden;
     bool base_name_only;
     bool dry_run;
+    bool no_desktop_entry;
 } yamenu_app;
 
 void yamenu_app_free(struct yamenu_app *app);
@@ -128,10 +129,12 @@ void linked_list_free(linked_list *list);
  *  The input string is modified.
  * separator:
  *  The separator character
+ * no_desktop_entry:
+ *  disables the automatic parsing of .desktop files
  * Returns:
  *  A linked list of paths
  */
-linked_list* create_path_list(char *input, char separator);
+linked_list* create_path_list(char *input, char separator, bool no_desktop_entry);
 
 /**
  * list:

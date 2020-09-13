@@ -34,9 +34,10 @@ static void test_parse_args(void **state) {
             "-Stestpath",
             "-b",
             "-a",
-            "-D"
+            "-D",
+            "-N"
         };
-        int argc = 11;
+        int argc = 12;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -49,6 +50,7 @@ static void test_parse_args(void **state) {
         assert_true(arguments.show_hidden);
         assert_true(arguments.base_name_only);
         assert_true(arguments.dry_run);
+        assert_true(arguments.no_desktop_entry);
 
         yamenu_app_free(&arguments);
     }
@@ -64,9 +66,10 @@ static void test_parse_args(void **state) {
             "--search=testpath",
             "--base",
             "--all",
-            "--dry"
+            "--dry",
+            "--no-desktop-entry"
         };
-        int argc = 11;
+        int argc = 12;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -79,6 +82,7 @@ static void test_parse_args(void **state) {
         assert_true(arguments.show_hidden);
         assert_true(arguments.base_name_only);
         assert_true(arguments.dry_run);
+        assert_true(arguments.no_desktop_entry);
 
         yamenu_app_free(&arguments);
     }
@@ -99,6 +103,7 @@ static void test_parse_args(void **state) {
         assert_false(arguments.show_hidden);
         assert_false(arguments.base_name_only);
         assert_false(arguments.dry_run);
+        assert_false(arguments.no_desktop_entry);
 
         yamenu_app_free(&arguments);
     }
@@ -182,7 +187,7 @@ static void test_create_path_list(void **state) {
     const char *expected[] = {"Path", "Second Path", "Third Path"};
 
     // generate a path list of size 3
-    linked_list *paths = create_path_list(pathlist, ';');
+    linked_list *paths = create_path_list(pathlist, ';', true);
 
     assert_int_equal(linked_list_size(paths), 3);
     for (int i = 0; i < linked_list_size(paths); i++) {
@@ -199,7 +204,7 @@ static void test_filter_path_list(void **state) {
     strncpy(pathlist, "Not Path 1;Filter Path 2;Filter Path 3;Not Path 4", 64);
 
     // generate a path list of size 3
-    linked_list *paths = create_path_list(pathlist, ';');
+    linked_list *paths = create_path_list(pathlist, ';', true);
 
 
     assert_int_equal(linked_list_size(paths), 4);
@@ -236,7 +241,7 @@ static void test_build_command(void **state) {
     app.prefix = "prefix for app";
     app.postfix = "Test postfix";
 
-    file_path *path = file_path_create("/test/path");
+    file_path *path = file_path_create("/test/path", false);
 
     char *to_exec = build_command(&app, path);
 
