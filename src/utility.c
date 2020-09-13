@@ -17,7 +17,7 @@ static struct argp_option options[] = {
     { "prefix", 'P', "prefix", OPTION_ARG_OPTIONAL, "Added before every command."},
     { "postfix", 'F', "postfix", OPTION_ARG_OPTIONAL, "Added after every command."},
     { "verbose", 'v', NULL, OPTION_ARG_OPTIONAL, "Enables verbose logging."},
-    { "search", 'S', "path", OPTION_ARG_OPTIONAL, "Lists a given directory. This only works is --paths is not provided."},
+    { "search", 'S', "path", OPTION_ARG_OPTIONAL, "Lists a given directory. This only works if --paths is not provided."},
     { "all", 'a', NULL, OPTION_ARG_OPTIONAL, "Include hidden files in the list"},
     { "base", 'b', NULL, OPTION_ARG_OPTIONAL, "Return path's basename only (Removes extension)"},
     { "dry", 'D', NULL, OPTION_ARG_OPTIONAL, "Do not execute the command."},
