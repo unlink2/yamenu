@@ -21,7 +21,10 @@ void command_line_interface(yamenu_app *app) {
     linked_list *filtered = filter_path_list(app->path_list, input_buffer);
 
     for (size_t i = 0; i < linked_list_size(filtered); i++) {
-        printf("%ld) %s\n", i+1, file_path_get_real_name(linked_list_get(filtered, i)->fp));
+        linked_list *l = linked_list_get(filtered, i);
+        if (!l->fp->no_show) {
+            printf("%ld) %s\n", i+1, file_path_get_real_name(l->fp));
+        }
     }
 
     fgets(input_buffer, INPUT_BUFFER_SIZE, stdin);

@@ -20,6 +20,7 @@ typedef struct file_path {
     bool terminal;
     char *icon;
     path_type type;
+    bool no_show; // hide from menu if true
 } file_path;
 
 typedef linked_list* (*read_file_source)(char *path);

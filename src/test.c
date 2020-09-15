@@ -204,6 +204,7 @@ linked_list *read_file_dummy(char *path) {
     linked_list *list = linked_list_create(strdup("[Desktop Entry]"));
     linked_list_push(list, strdup("Exec=Test"));
     linked_list_push(list, strdup("Name=Hello"));
+    linked_list_push(list, strdup("NoDisplay=true"));
     return list;
 }
 
@@ -218,6 +219,7 @@ static void test_create_path_list_desktop_entry(void **state) {
         assert_string_equal(fp->path, "test/path");
         assert_null(fp->name);
         assert_null(fp->executable);
+        assert_false(fp->no_show);
         file_path_free(fp);
     }
     {
@@ -225,6 +227,7 @@ static void test_create_path_list_desktop_entry(void **state) {
         assert_string_equal(fp->path, "test/path");
         assert_null(fp->name);
         assert_null(fp->executable);
+        assert_false(fp->no_show);
         file_path_free(fp);
     }
     {
@@ -232,6 +235,7 @@ static void test_create_path_list_desktop_entry(void **state) {
         assert_string_equal(fp->path, "test/path");
         assert_null(fp->name);
         assert_null(fp->executable);
+        assert_false(fp->no_show);
         file_path_free(fp);
     }
 
@@ -241,6 +245,7 @@ static void test_create_path_list_desktop_entry(void **state) {
         assert_string_equal(fp->path, "test/path.desktop");
         assert_null(fp->name);
         assert_null(fp->executable);
+        assert_false(fp->no_show);
         file_path_free(fp);
     }
     // do not read file because of false
@@ -249,6 +254,7 @@ static void test_create_path_list_desktop_entry(void **state) {
         assert_string_equal(fp->path, "test/path.desktop");
         assert_null(fp->name);
         assert_null(fp->executable);
+        assert_false(fp->no_show);
         file_path_free(fp);
     }
     // read dummy file entry
@@ -257,6 +263,7 @@ static void test_create_path_list_desktop_entry(void **state) {
         assert_string_equal(fp->path, "test/path.desktop");
         assert_string_equal(fp->name, "Hello");
         assert_string_equal(fp->executable, "Test");
+        assert_true(fp->no_show);
         file_path_free(fp);
     }
     // file not found
@@ -265,6 +272,7 @@ static void test_create_path_list_desktop_entry(void **state) {
         assert_string_equal(fp->path, "test/path.desktop");
         assert_null(fp->name);
         assert_null(fp->executable);
+        assert_false(fp->no_show);
         file_path_free(fp);
     }
 }

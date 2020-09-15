@@ -13,6 +13,7 @@ file_path* file_path_create(char *path, bool no_desktop_entry, read_file_source 
     fp->type = APPLICATION;
     fp->terminal = false;
     fp->name = NULL;
+    fp->no_show = false;
 
 #ifdef YAMENU_PARSE_DESKTOP_ENTRY
     if (_read_file) {
@@ -27,6 +28,12 @@ file_path* file_path_create(char *path, bool no_desktop_entry, read_file_source 
                 if (list) {
                     fp->executable = parse_desktop_entry("Exec=", list);
                     fp->name = parse_desktop_entry("Name=", list);
+                    char *no_show = parse_desktop_entry("NoDisplay=", list);
+                    if (no_show) {
+                        fp->no_show = (strcmp(no_show, "true") == 0);
+                        my_free(no_show);
+                    }
+
                     for (size_t i = 0; i < linked_list_size(list); i++) {
                         my_free(linked_list_get(list, i)->generic);
                     }
