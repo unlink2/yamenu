@@ -187,7 +187,7 @@ static void test_create_path_list(void **state) {
     const char *expected[] = {"Path", "Second Path", "Third Path"};
 
     // generate a path list of size 3
-    linked_list *paths = create_path_list(pathlist, ';', true);
+    linked_list *paths = create_path_list(pathlist, ';', true, NULL);
 
     assert_int_equal(linked_list_size(paths), 3);
     for (int i = 0; i < linked_list_size(paths); i++) {
@@ -199,12 +199,70 @@ static void test_create_path_list(void **state) {
     my_free(pathlist);
 }
 
+// dummy returns the same entry every time
+linked_list *read_file_dummy(char *path) {
+    linked_list *list = linked_list_create(strdup("[Desktop Entry]"));
+    linked_list_push(list, strdup("Exec=Test"));
+    linked_list_push(list, strdup("Name=Hello"));
+    return list;
+}
+
+static void test_create_path_list_desktop_entry(void **state) {
+    // not a .desktop file
+    {
+        file_path *fp = file_path_create("test/path", false, NULL);
+        assert_string_equal(fp->path, "test/path");
+        assert_null(fp->name);
+        assert_null(fp->executable);
+        file_path_free(fp);
+    }
+    {
+        file_path *fp = file_path_create("test/path", true, read_file_dummy);
+        assert_string_equal(fp->path, "test/path");
+        assert_null(fp->name);
+        assert_null(fp->executable);
+        file_path_free(fp);
+    }
+    {
+        file_path *fp = file_path_create("test/path", false, read_file_dummy);
+        assert_string_equal(fp->path, "test/path");
+        assert_null(fp->name);
+        assert_null(fp->executable);
+        file_path_free(fp);
+    }
+
+    // do not read file because no function was provided
+    {
+        file_path *fp = file_path_create("test/path.desktop", false, NULL);
+        assert_string_equal(fp->path, "test/path.desktop");
+        assert_null(fp->name);
+        assert_null(fp->executable);
+        file_path_free(fp);
+    }
+    // do not read file because of false
+    {
+        file_path *fp = file_path_create("test/path.desktop", true, read_file_dummy);
+        assert_string_equal(fp->path, "test/path.desktop");
+        assert_null(fp->name);
+        assert_null(fp->executable);
+        file_path_free(fp);
+    }
+    // read dummy file entry
+    {
+        file_path *fp = file_path_create("test/path.desktop", false, read_file_dummy);
+        assert_string_equal(fp->path, "test/path.desktop");
+        assert_string_equal(fp->name, "Hello");
+        assert_string_equal(fp->executable, "Test");
+        file_path_free(fp);
+    }
+}
+
 static void test_filter_path_list(void **state) {
     char *pathlist = my_malloc(64);
     strncpy(pathlist, "Not Path 1;Filter Path 2;Filter Path 3;Not Path 4", 64);
 
     // generate a path list of size 3
-    linked_list *paths = create_path_list(pathlist, ';', true);
+    linked_list *paths = create_path_list(pathlist, ';', true, NULL);
 
 
     assert_int_equal(linked_list_size(paths), 4);
@@ -241,7 +299,7 @@ static void test_build_command(void **state) {
     app.prefix = "prefix for app";
     app.postfix = "Test postfix";
 
-    file_path *path = file_path_create("/test/path", false);
+    file_path *path = file_path_create("/test/path", false, NULL);
 
     char *to_exec = build_command(&app, path);
 
@@ -495,6 +553,7 @@ int main() {
         cmocka_unit_test(test_parse_args),
         cmocka_unit_test(test_linked_list),
         cmocka_unit_test(test_create_path_list),
+        cmocka_unit_test(test_create_path_list_desktop_entry),
         cmocka_unit_test(test_filter_path_list),
         cmocka_unit_test(test_my_malloc_and_free),
         cmocka_unit_test(test_build_command),

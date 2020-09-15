@@ -11,7 +11,7 @@
 #include "include/logger.h"
 
 linked_list* create_path_list_from_dir(char *path, bool all, bool only_files, path_filter_fn *filter,
-        bool no_desktop_entry) {
+        bool no_desktop_entry, read_file_source _read_file) {
     if (!filter) {
         filter = strdup;
     }
@@ -45,10 +45,10 @@ linked_list* create_path_list_from_dir(char *path, bool all, bool only_files, pa
         char *full = path_combine(path, filtered, PATH_SEP);
         my_free(filtered);
         if (!response) {
-            response = linked_list_create(file_path_create(full, no_desktop_entry));
+            response = linked_list_create(file_path_create(full, no_desktop_entry, _read_file));
             last = response;
         } else {
-            last = linked_list_push(last, file_path_create(full, no_desktop_entry));
+            last = linked_list_push(last, file_path_create(full, no_desktop_entry, _read_file));
         }
     }
 

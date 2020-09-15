@@ -1,6 +1,8 @@
 #ifndef __PATH_H__
 #define __PATH_H__
 
+#include "data.h"
+
 // enable parsing of .desktop files
 // when creating a path object
 #define YAMENU_PARSE_DESKTOP_ENTRY
@@ -20,6 +22,8 @@ typedef struct file_path {
     path_type type;
 } file_path;
 
+typedef linked_list* (*read_file_source)(char *path);
+
 /**
  * path:
  *  Either the full path or just the executables name
@@ -27,7 +31,7 @@ typedef struct file_path {
  *  If pwd is provided path must be just the file name
  *  in this case .desktop files are parsed in a special way
  */ 
-file_path* file_path_create(char *path, bool no_desktop_entry);
+file_path* file_path_create(char *path, bool no_desktop_entry, read_file_source _read_file);
 
 /**
  * Parses a .desktop file

@@ -37,7 +37,15 @@ typedef struct linked_list {
  *  < 0 if 2nd item is greater
  *  > 0 if 1st item is greater
  */
-typedef int (linked_list_compare)(linked_list *, linked_list *);
+typedef int (*linked_list_compare)(linked_list *, linked_list *);
+
+/**
+ * Points to a function that reads a file from memory and
+ * returns:
+ *  a linked list of lines
+ *  NULL on error
+ */
+typedef linked_list* (*read_file_source)(char *path);
 
 /**
  * Application settings object
@@ -57,6 +65,8 @@ typedef struct yamenu_app {
     bool base_name_only;
     bool dry_run;
     bool no_desktop_entry;
+
+    read_file_source _read_file;
 } yamenu_app;
 
 void yamenu_app_free(struct yamenu_app *app);
@@ -134,7 +144,7 @@ void linked_list_free(linked_list *list);
  * Returns:
  *  A linked list of paths
  */
-linked_list* create_path_list(char *input, char separator, bool no_desktop_entry);
+linked_list* create_path_list(char *input, char separator, bool no_desktop_entry, read_file_source _read_file);
 
 /**
  * list:

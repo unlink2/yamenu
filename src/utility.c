@@ -20,7 +20,7 @@ static struct argp_option options[] = {
     { "search", 'S', "path", OPTION_ARG_OPTIONAL, "Lists a given directory. Mutually exclusive with --paths"},
     { "all", 'a', NULL, OPTION_ARG_OPTIONAL, "Include hidden files in the list"},
     { "base", 'b', NULL, OPTION_ARG_OPTIONAL, "Return path's basename only (Removes extension)"},
-    { "dry", 'D', NULL, OPTION_ARG_OPTIONAL, "Do not execute the command."},
+    { "dry", 'D', NULL, OPTION_ARG_OPTIONAL, "Do not call exec"},
     { "no-desktop-entry", 'N', NULL, OPTION_ARG_OPTIONAL, "Disable the parsing of .desktop files"},
     { 0 }
 };
@@ -96,6 +96,7 @@ struct yamenu_app parse_args(int argc, char **argv) {
     arguments.search_path = YAMENU_DEFAULT_SEARCH_PATH;
     arguments.dry_run = false;
     arguments.no_desktop_entry = false;
+    arguments._read_file = read_file;
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
@@ -106,15 +107,16 @@ void yamenu_app_init_paths(yamenu_app *app) {
     // NULL check is required because
     // an empty input may yield NULL
     if (app->input_list) {
-        app->path_list = create_path_list(app->input_list, app->separator, app->no_desktop_entry);
+        app->path_list = create_path_list(app->input_list, app->separator, app->no_desktop_entry, app->_read_file);
     } else {
         // if an empty list was provided list the search directory instead
 
         // TODO unit test this
-        linked_list *search_paths = create_path_list(app->search_path, app->separator, app->no_desktop_entry);
+        linked_list *search_paths = create_path_list(app->search_path, app->separator,
+                app->no_desktop_entry, app->_read_file);
         while (search_paths) {
             linked_list *next = create_path_list_from_dir(search_paths->fp->path, app->show_hidden,
-                true, app->base_name_only ? basefilename : NULL, app->no_desktop_entry);
+                true, app->base_name_only ? basefilename : NULL, app->no_desktop_entry, app->_read_file);
             if (!app->path_list) {
                 app->path_list = next;
             } else {

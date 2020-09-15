@@ -3,7 +3,7 @@
 #include "include/sysio.h"
 #include <limits.h>
 
-file_path* file_path_create(char *path, bool no_desktop_entry) {
+file_path* file_path_create(char *path, bool no_desktop_entry, read_file_source _read_file) {
     file_path *fp = my_malloc(sizeof(file_path));
     fp->path = path;
 
@@ -15,25 +15,27 @@ file_path* file_path_create(char *path, bool no_desktop_entry) {
     fp->name = NULL;
 
 #ifdef YAMENU_PARSE_DESKTOP_ENTRY
-    // TODO remove this from path_create
-    char *ext = fileext(path);
-    if (ext) {
-        if (strcmp(ext, ".desktop") == 0 && !no_desktop_entry) {
-            // special case for .desktop files. parse them as ini
-            // first read the file
-            // now read file
-            linked_list *list = read_file(path);
-            if (list) {
-                fp->executable = parse_desktop_entry("Exec=", list);
-                fp->name = parse_desktop_entry("Name=", list);
-                for (size_t i = 0; i < linked_list_size(list); i++) {
-                    my_free(linked_list_get(list, i)->generic);
+    if (_read_file) {
+        // TODO remove this from path_create
+        char *ext = fileext(path);
+        if (ext) {
+            if (strcmp(ext, ".desktop") == 0 && !no_desktop_entry) {
+                // special case for .desktop files. parse them as ini
+                // first read the file
+                // now read file
+                linked_list *list = _read_file(path);
+                if (list) {
+                    fp->executable = parse_desktop_entry("Exec=", list);
+                    fp->name = parse_desktop_entry("Name=", list);
+                    for (size_t i = 0; i < linked_list_size(list); i++) {
+                        my_free(linked_list_get(list, i)->generic);
+                    }
+                    linked_list_free(list);
                 }
-                linked_list_free(list);
-            }
 
+            }
+            my_free(ext);
         }
-        my_free(ext);
     }
 #endif
 
