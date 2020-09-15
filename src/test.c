@@ -207,6 +207,10 @@ linked_list *read_file_dummy(char *path) {
     return list;
 }
 
+linked_list *read_file_not_found_dummy(char *path) {
+    return NULL;
+}
+
 static void test_create_path_list_desktop_entry(void **state) {
     // not a .desktop file
     {
@@ -253,6 +257,14 @@ static void test_create_path_list_desktop_entry(void **state) {
         assert_string_equal(fp->path, "test/path.desktop");
         assert_string_equal(fp->name, "Hello");
         assert_string_equal(fp->executable, "Test");
+        file_path_free(fp);
+    }
+    // file not found
+    {
+        file_path *fp = file_path_create("test/path.desktop", true, read_file_not_found_dummy);
+        assert_string_equal(fp->path, "test/path.desktop");
+        assert_null(fp->name);
+        assert_null(fp->executable);
         file_path_free(fp);
     }
 }
