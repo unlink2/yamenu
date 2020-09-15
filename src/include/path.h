@@ -27,9 +27,11 @@ typedef linked_list* (*read_file_source)(char *path);
 /**
  * path:
  *  Either the full path or just the executables name
- * pwd:
- *  If pwd is provided path must be just the file name
- *  in this case .desktop files are parsed in a special way
+ * no_desktop_entry:
+ *  do not parse desktop entries
+ * _read_file:
+ *  abstraction around file system reads. can be used to provide a custom
+ *  source of desktop entires in the future
  */ 
 file_path* file_path_create(char *path, bool no_desktop_entry, read_file_source _read_file);
 
