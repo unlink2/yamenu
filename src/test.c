@@ -11,7 +11,7 @@
 #include "include/logger.h"
 
 #define main __real_main
-#include "main.c"
+// #include "main.c"
 #undef main
 
 /**
