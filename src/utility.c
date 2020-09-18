@@ -22,6 +22,8 @@ static struct argp_option options[] = {
     { "base", 'b', NULL, OPTION_ARG_OPTIONAL, "Return path's basename only (Removes extension)"},
     { "dry", 'D', NULL, OPTION_ARG_OPTIONAL, "Do not call exec"},
     { "no-desktop-entry", 'N', NULL, OPTION_ARG_OPTIONAL, "Disable the parsing of .desktop files"},
+    { "x-pos", 'X', "xpos", OPTION_ARG_OPTIONAL, "X position of window"},
+    { "y-pos", 'Y', "xpos", OPTION_ARG_OPTIONAL, "Y position of window"},
     { 0 }
 };
 
@@ -65,6 +67,12 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'N':
             arguments->no_desktop_entry = true;
             break;
+        case 'X':
+            arguments->x_pos = atoi(arg);
+            break;
+        case 'Y':
+            arguments->y_pos = atoi(arg);
+            break;
         case ARGP_KEY_ARG:
             return 0;
         default:
@@ -97,6 +105,9 @@ struct yamenu_app parse_args(int argc, char **argv) {
     arguments.dry_run = false;
     arguments.no_desktop_entry = false;
     arguments._read_file = read_file;
+
+    arguments.x_pos = DEFAULT_X_Y_POS;
+    arguments.y_pos = DEFAULT_X_Y_POS;
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 

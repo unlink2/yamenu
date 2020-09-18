@@ -38,6 +38,10 @@ int graphical_interface(int argc, char **argv, yamenu_app *app) {
     window = GTK_WIDGET(gtk_builder_get_object(builder, "window_main"));
     gtk_builder_connect_signals(builder, NULL);
 
+    if (app->x_pos != -1 && app->y_pos != -1) {
+        gtk_window_move((GtkWindow*)window, app->x_pos, app->y_pos);
+    }
+
     // add items to list mode l
     app_list_store = (GtkListStore*)gtk_builder_get_object(builder, "appplication_list_model");
 

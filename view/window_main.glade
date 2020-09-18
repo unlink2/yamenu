@@ -17,7 +17,8 @@
     <property name="hexpand">True</property>
     <property name="vexpand">True</property>
     <property name="resizable">False</property>
-    <property name="default_width">150</property>
+    <property name="window_position">center</property>
+    <property name="default_width">250</property>
     <property name="default_height">250</property>
     <property name="type_hint">popup-menu</property>
     <property name="decorated">False</property>
@@ -39,6 +40,7 @@
             <property name="can_focus">True</property>
             <property name="double_buffered">False</property>
             <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
             <property name="model">appplication_list_model</property>
             <property name="headers_visible">False</property>
             <property name="headers_clickable">False</property>

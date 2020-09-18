@@ -47,6 +47,8 @@ typedef int (*linked_list_compare)(linked_list *, linked_list *);
  */
 typedef linked_list* (*read_file_source)(char *path);
 
+#define DEFAULT_X_Y_POS -1
+
 /**
  * Application settings object
  */
@@ -65,6 +67,10 @@ typedef struct yamenu_app {
     bool base_name_only;
     bool dry_run;
     bool no_desktop_entry;
+
+    // if position of both is -1 winodw will default to center of screen
+    int x_pos;
+    int y_pos;
 
     read_file_source _read_file;
 } yamenu_app;

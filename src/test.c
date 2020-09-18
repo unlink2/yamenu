@@ -35,9 +35,11 @@ static void test_parse_args(void **state) {
             "-b",
             "-a",
             "-D",
-            "-N"
+            "-N",
+            "-X100",
+            "-Y200"
         };
-        int argc = 12;
+        int argc = 14;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -51,6 +53,8 @@ static void test_parse_args(void **state) {
         assert_true(arguments.base_name_only);
         assert_true(arguments.dry_run);
         assert_true(arguments.no_desktop_entry);
+        assert_int_equal(arguments.x_pos, 100);
+        assert_int_equal(arguments.y_pos, 200);
 
         yamenu_app_free(&arguments);
     }
@@ -67,9 +71,11 @@ static void test_parse_args(void **state) {
             "--base",
             "--all",
             "--dry",
-            "--no-desktop-entry"
+            "--no-desktop-entry",
+            "--x-pos=100",
+            "--y-pos=200"
         };
-        int argc = 12;
+        int argc = 14;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -83,6 +89,8 @@ static void test_parse_args(void **state) {
         assert_true(arguments.base_name_only);
         assert_true(arguments.dry_run);
         assert_true(arguments.no_desktop_entry);
+        assert_int_equal(arguments.x_pos, 100);
+        assert_int_equal(arguments.y_pos, 200);
 
         yamenu_app_free(&arguments);
     }
@@ -104,6 +112,8 @@ static void test_parse_args(void **state) {
         assert_false(arguments.base_name_only);
         assert_false(arguments.dry_run);
         assert_false(arguments.no_desktop_entry);
+        assert_int_equal(arguments.x_pos, DEFAULT_X_Y_POS);
+        assert_int_equal(arguments.y_pos, DEFAULT_X_Y_POS);
 
         yamenu_app_free(&arguments);
     }
