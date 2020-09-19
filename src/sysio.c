@@ -74,7 +74,7 @@ void execute_path(yamenu_app *app, file_path *path) {
     }
 
     // double fork to prevent zombie
-    int pid_single = fork();
+    /*int pid_single = fork();
     if (pid_single > 0) {
         // parent
         return;
@@ -90,7 +90,7 @@ void execute_path(yamenu_app *app, file_path *path) {
     }
 
     // pid is 0 again fork was successfull
-    setsid(); // get new session
+    setsid(); // get new session*/
 
     struct passwd *pw = getpwuid(getuid());
     chdir(pw->pw_dir);
@@ -99,6 +99,8 @@ void execute_path(yamenu_app *app, file_path *path) {
     char *to_exec = build_command(app, path);
     yalogger(app, LEVEL_INFO, to_exec);
     execl(app->shell, app->shell, "-c", to_exec, NULL);
+
+    // should not get here
 }
 
 linked_list* read_file(char *path) {

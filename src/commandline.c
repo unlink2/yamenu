@@ -196,18 +196,7 @@ void command_line_interface(yamenu_app *app) {
         output_all(filtered, filtered_len, draws_this_iteration, selection, cols, input_buffer);
     }
 
-
-    /* linked_list *filtered = filter_path_list(app->path_list, input_buffer);
-    for (size_t i = 0; i < linked_list_size(filtered); i++) {
-        linked_list *l = linked_list_get(filtered, i);
-        if (!l->fp->no_show) {
-            printf("%ld) %s\n", i+1, file_path_get_real_name(l->fp));
-        }
-    }
-
-    fgets(input_buffer, INPUT_BUFFER_SIZE, stdin);
-
-    selection = atoi(input_buffer);*/
+    // TODO clean up before exec
     linked_list *path_list = linked_list_get(filtered, selection);
     disable_raw_mode(&orgi_termios);
     printf("\n");
@@ -216,5 +205,4 @@ void command_line_interface(yamenu_app *app) {
     }
 
     linked_list_free(filtered);
-
 }

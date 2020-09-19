@@ -85,11 +85,12 @@ void on_main_window_application_select(GtkTreeView *tree_view, GtkTreePath *path
         gtk_tree_model_get(model, &iter, META_COL, &meta, -1);
         gtk_tree_model_get(model, &iter, APP_COL, &app, -1);
 
+        gtk_widget_hide(gtk_widget_get_toplevel((GtkWidget*)tree_view));
+        gtk_main_quit();
+
         linked_list *path = (linked_list*)meta;
         execute_path((yamenu_app*)app, path->fp);
     }
-    gtk_widget_hide(gtk_widget_get_toplevel((GtkWidget*)tree_view));
-    gtk_main_quit();
 }
 
 gboolean on_window_main_key_press_event(GtkWidget *widget, GdkEventKey *key, gpointer user_data) {
