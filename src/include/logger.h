@@ -16,5 +16,10 @@ typedef enum {
 bool should_log(log_level level, log_level max);
 
 void yalogger(yamenu_app *app, log_level level, char *message);
+/**
+ * Variable string args
+ * must be NULL terminated
+ */
+void yalogger_var(yamenu_app *app, log_level level, char *message, ...);
 
 #endif

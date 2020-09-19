@@ -43,4 +43,6 @@ void execute_path(yamenu_app *app, file_path *path);
  */
 linked_list* read_file(char *path);
 
+void die();
+
 #endif

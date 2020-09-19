@@ -101,6 +101,8 @@ void execute_path(yamenu_app *app, file_path *path) {
     execl(app->shell, app->shell, "-c", to_exec, NULL);
 
     // should not get here
+    yalogger_var(app, LEVEL_FATAL, "Could not launch application: ", to_exec, NULL);
+    die();
 }
 
 linked_list* read_file(char *path) {
@@ -126,4 +128,8 @@ linked_list* read_file(char *path) {
     }
 
     return result;
+}
+
+void die() {
+    exit(-1);
 }
