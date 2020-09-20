@@ -120,38 +120,6 @@ struct yamenu_app parse_args(int argc, char **argv) {
     return arguments;
 }
 
-// TODO test this function
-void yamenu_app_init_paths(yamenu_app *app) {
-    // NULL check is required because
-    // an empty input may yield NULL
-    if (app->input_list) {
-        app->path_list = create_path_list(app->input_list, app->separator, app->no_desktop_entry, app->_read_file);
-        app->path_list = apply_exclude_list(app->path_list, app->excludes, app->separator);
-    } else if (app->search_path) {
-        // if an empty list was provided list the search directory instead
-
-        // TODO unit test this
-        linked_list *search_paths = create_path_list(app->search_path, app->separator,
-                app->no_desktop_entry, app->_read_file);
-        while (search_paths) {
-            linked_list *next = create_path_list_from_dir(search_paths->fp->path, app->show_hidden,
-                true, app->base_name_only ? basefilename : NULL, app->no_desktop_entry, app->_read_file);
-            if (!app->path_list) {
-                app->path_list = next;
-            } else {
-                linked_list_cat(app->path_list, next);
-            }
-
-            search_paths = search_paths->next;
-        }
-        if (app->path_list) {
-            app->path_list = apply_exclude_list(app->path_list, app->excludes, app->separator);
-            linked_list_quick_sort(app->path_list, 0, linked_list_size(app->path_list)-1, path_list_compare);
-        }
-    } else {
-        die();
-    }
-}
 
 void* my_malloc(size_t size) {
     void *ptr = malloc(size);

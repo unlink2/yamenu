@@ -4,6 +4,7 @@
 #include "include/data.h"
 #include "include/commandline.h"
 #include "include/gui.h"
+#include "include/sysio.h"
 
 int main(int argc, char **argv) {
     yamenu_app app = parse_args(argc, argv);

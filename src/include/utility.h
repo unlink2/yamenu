@@ -7,7 +7,6 @@
 #include "data.h"
 
 struct yamenu_app parse_args(int argc, char **argv);
-void yamenu_app_init_paths(yamenu_app *app);
 
 // #define DEBUG
 

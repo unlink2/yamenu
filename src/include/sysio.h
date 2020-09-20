@@ -43,6 +43,11 @@ void execute_path(yamenu_app *app, file_path *path);
  */
 linked_list* read_file(char *path);
 
+/**
+ * Inits path list from directory or direct input
+ */
+void yamenu_app_init_paths(yamenu_app *app);
+
 void die();
 
 #endif
