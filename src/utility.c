@@ -24,6 +24,7 @@ static struct argp_option options[] = {
     { "no-desktop-entry", 'N', NULL, OPTION_ARG_OPTIONAL, "Disable the parsing of .desktop files"},
     { "x-pos", 'X', "xpos", OPTION_ARG_OPTIONAL, "X position of window"},
     { "y-pos", 'Y', "xpos", OPTION_ARG_OPTIONAL, "Y position of window"},
+    { "exclude", 'E', "excludes", OPTION_ARG_OPTIONAL, "List of files to exclude"},
     { 0 }
 };
 
@@ -73,6 +74,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'Y':
             arguments->y_pos = atoi(arg);
             break;
+        case 'E':
+            arguments->excludes = arg;
+            break;
         case ARGP_KEY_ARG:
             return 0;
         default:
@@ -109,16 +113,20 @@ struct yamenu_app parse_args(int argc, char **argv) {
     arguments.x_pos = DEFAULT_X_Y_POS;
     arguments.y_pos = DEFAULT_X_Y_POS;
 
+    arguments.excludes = NULL;
+
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
     return arguments;
 }
 
+// TODO test this function
 void yamenu_app_init_paths(yamenu_app *app) {
     // NULL check is required because
     // an empty input may yield NULL
     if (app->input_list) {
         app->path_list = create_path_list(app->input_list, app->separator, app->no_desktop_entry, app->_read_file);
+        app->path_list = apply_exclude_list(app->path_list, app->excludes, app->separator);
     } else {
         // if an empty list was provided list the search directory instead
 
@@ -136,6 +144,7 @@ void yamenu_app_init_paths(yamenu_app *app) {
 
             search_paths = search_paths->next;
         }
+        app->path_list = apply_exclude_list(app->path_list, app->excludes, app->separator);
         linked_list_quick_sort(app->path_list, 0, linked_list_size(app->path_list)-1, path_list_compare);
     }
 }

@@ -131,20 +131,98 @@ void linked_list_free(linked_list *list) {
     }
 }
 
+void shift_str_left(char *input) {
+    int n = strlen(input);
+    for (size_t i = 0; i < n-1; i++) {
+        input[i] = input[i+1];
+    }
+    input[n-1] = '\0';
+}
+
+void unescape_str(char *input) {
+    int n = strlen(input);
+    for (size_t i = 0; i < strlen(input); i++) {
+        if (input[i] == '"') {
+            // shift 1 left
+            shift_str_left(input+i);
+            n--;
+        } else if (input[i] == '\\') {
+            // shift 1 left
+            shift_str_left(input+i);
+            n--;
+        }
+    }
+}
+
 linked_list* create_path_list(char *input, char separator, bool no_desktop_entry, read_file_source _read_file) {
     linked_list *head = linked_list_create(file_path_create(input, no_desktop_entry, _read_file));
     linked_list *last = head;
 
+    const char quote_char = '"';
+    const char escape_char = '\\';
+
+    bool quoted = false;
+    bool escaped = false;
+
     while (input[0] != '\0') {
-        if (input[0] == separator) {
+        if (input[0] == separator && !quoted && !escaped) {
             input[0] = '\0';
+            // unescape the last input
+            unescape_str(last->fp->path);
             last = linked_list_push(last, file_path_create(input+1, no_desktop_entry, _read_file));
+        } else if (input[0] == quote_char && !escaped) {
+            quoted = !quoted;
+        } else if (input[0] == escape_char) {
+            escaped = true;
+        } else {
+            escaped = false;
         }
 
         input += 1;
     }
-
+    unescape_str(last->fp->path);
     return head;
+}
+
+// helper function
+bool is_excluded(char *path, linked_list *excludes) {
+    for (size_t i = 0; i < linked_list_size(excludes); i++) {
+        linked_list *current = linked_list_get(excludes, i);
+        if (strcmp(path, current->fp->path) == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+linked_list* apply_exclude_list(linked_list *path_list, char *excludes, char separator) {
+    if (!excludes) {
+        return path_list;
+    }
+    linked_list *exclude_list = create_path_list(excludes, separator, true, NULL);
+    linked_list *new_list = NULL;
+    for (size_t i = 0; i < linked_list_size(path_list); i++) {
+        linked_list *current = linked_list_get(path_list, i);
+        if (!is_excluded(current->fp->path, exclude_list)) {
+            if (!new_list) {
+                new_list = linked_list_create(current->fp);
+            } else {
+                linked_list_push(new_list, current->fp);
+            }
+        } else {
+            file_path_free(current->fp);
+        }
+    }
+
+    for (size_t i = 0; i < linked_list_size(exclude_list); i++) {
+        file_path_free(linked_list_get(exclude_list, i)->fp);
+    }
+
+    linked_list_free(exclude_list);
+    linked_list_free(path_list);
+
+    return new_list;
 }
 
 linked_list* filter_path_list(linked_list *list, char *search) {

@@ -62,6 +62,7 @@ typedef struct yamenu_app {
     char *postfix;
     short log_level;
 
+    char *excludes;
     char *search_path;
     bool show_hidden;
     bool base_name_only;
@@ -139,6 +140,11 @@ linked_list* linked_list_cat(linked_list *l1, linked_list *l2);
  */
 void linked_list_free(linked_list *list);
 
+// shifts input string 1 to the left
+void shift_str_left(char *input);
+// removes escape sequences from input string
+void unescape_str(char *input);
+
 /**
  * input:
  *  An input string to be parsed.
@@ -151,6 +157,17 @@ void linked_list_free(linked_list *list);
  *  A linked list of paths
  */
 linked_list* create_path_list(char *input, char separator, bool no_desktop_entry, read_file_source _read_file);
+
+/**
+ * Applies an exclude list to a path list. Frees items that are not filtered
+ * path_list:
+ *  the path linked list. Items on the exclude list will be removed and freed
+ * excludes:
+ *  A list of exclude paths. will be parsed by create_path_list
+ * returns:
+ *  a new linked list that applied the exclude list
+ */
+linked_list* apply_exclude_list(linked_list *path_list, char *excludes, char separator);
 
 /**
  * list:

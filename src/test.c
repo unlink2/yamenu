@@ -37,9 +37,10 @@ static void test_parse_args(void **state) {
             "-D",
             "-N",
             "-X100",
-            "-Y200"
+            "-Y200",
+            "-Etest;Exclude"
         };
-        int argc = 14;
+        int argc = 15;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -55,6 +56,7 @@ static void test_parse_args(void **state) {
         assert_true(arguments.no_desktop_entry);
         assert_int_equal(arguments.x_pos, 100);
         assert_int_equal(arguments.y_pos, 200);
+        assert_string_equal(arguments.excludes, "test;Exclude");
 
         yamenu_app_free(&arguments);
     }
@@ -73,9 +75,10 @@ static void test_parse_args(void **state) {
             "--dry",
             "--no-desktop-entry",
             "--x-pos=100",
-            "--y-pos=200"
+            "--y-pos=200",
+            "--exclude=test;Exclude"
         };
-        int argc = 14;
+        int argc = 15;
         struct yamenu_app arguments = parse_args(argc, (char**)argv);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -91,6 +94,7 @@ static void test_parse_args(void **state) {
         assert_true(arguments.no_desktop_entry);
         assert_int_equal(arguments.x_pos, 100);
         assert_int_equal(arguments.y_pos, 200);
+        assert_string_equal(arguments.excludes, "test;Exclude");
 
         yamenu_app_free(&arguments);
     }
@@ -114,6 +118,7 @@ static void test_parse_args(void **state) {
         assert_false(arguments.no_desktop_entry);
         assert_int_equal(arguments.x_pos, DEFAULT_X_Y_POS);
         assert_int_equal(arguments.y_pos, DEFAULT_X_Y_POS);
+        assert_null(arguments.excludes);
 
         yamenu_app_free(&arguments);
     }
@@ -190,16 +195,18 @@ static void test_linked_list(void **state) {
     linked_list_free(cat);
 }
 
+// also tests unescape_str and shift_str_left
 static void test_create_path_list(void **state) {
-    char *pathlist = my_malloc(64);
-    strncpy(pathlist, "Path;Second Path;Third Path", 64);
+    char *pathlist = my_malloc(128);
+    strncpy(pathlist, "Path;Second Path;Third Path;\\\"Escape;Quote;\"Quoted; List\";Escaped\\; split", 128);
 
-    const char *expected[] = {"Path", "Second Path", "Third Path"};
+    const char *expected[] = {"Path", "Second Path", "Third Path", "\"Escape", "Quote", "Quoted; List",
+        "Escaped; split"};
 
     // generate a path list of size 3
     linked_list *paths = create_path_list(pathlist, ';', true, NULL);
 
-    assert_int_equal(linked_list_size(paths), 3);
+    assert_int_equal(linked_list_size(paths), 7);
     for (int i = 0; i < linked_list_size(paths); i++) {
         assert_string_equal(linked_list_get(paths, i)->fp->path, expected[i]);
         file_path_free(linked_list_get(paths, i)->fp);
@@ -207,6 +214,30 @@ static void test_create_path_list(void **state) {
 
     linked_list_free(paths);
     my_free(pathlist);
+}
+
+static void test_apply_excludes(void **state) {
+    char *pathlist = my_malloc(128);
+    strncpy(pathlist, "Path;Second Path;Third Path;\\\"Escape;Quote;\"Quoted; List\";Escaped\\; split", 128);
+    char *excludelist = strdup("Third Path;\\\"Escape");
+
+    const char *expected[] = {"Path", "Second Path", "Quote", "Quoted; List",
+        "Escaped; split"};
+
+    // generate a path list of size 3
+    linked_list *paths = create_path_list(pathlist, ';', true, NULL);
+
+    paths = apply_exclude_list(paths, excludelist, ';');
+
+    assert_int_equal(linked_list_size(paths), 5);
+    for (int i = 0; i < linked_list_size(paths); i++) {
+        assert_string_equal(linked_list_get(paths, i)->fp->path, expected[i]);
+        file_path_free(linked_list_get(paths, i)->fp);
+    }
+
+    linked_list_free(paths);
+    my_free(pathlist);
+    my_free(excludelist);
 }
 
 // dummy returns the same entry every time
@@ -583,6 +614,7 @@ int main() {
         cmocka_unit_test(test_parse_args),
         cmocka_unit_test(test_linked_list),
         cmocka_unit_test(test_create_path_list),
+        cmocka_unit_test(test_apply_excludes),
         cmocka_unit_test(test_create_path_list_desktop_entry),
         cmocka_unit_test(test_filter_path_list),
         cmocka_unit_test(test_my_malloc_and_free),
