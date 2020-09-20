@@ -151,7 +151,7 @@ void command_line_interface(yamenu_app *app) {
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     output_all(filtered, filtered_len, draws_this_iteration, selection, w.ws_col, input_buffer);
     int c;
-    while ((c = read_char())) {
+    while ((c = read_char()) && !sigint_flag) {
         // get new terminal size. this takes care of resize events (hopefully)
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
         size_t cols = w.ws_col;
@@ -160,7 +160,8 @@ void command_line_interface(yamenu_app *app) {
             break;
         } else if (c == KEY_ESC || sigint_flag == 1 || c == '\0') {
             disable_raw_mode(&orgi_termios);
-            return;
+            sigint_flag = 1;
+            break;
         } else if (c == KEY_BS) {
             if (input_buffer_index > 0) {
                 input_buffer[--input_buffer_index] = '\0';
@@ -196,13 +197,16 @@ void command_line_interface(yamenu_app *app) {
         output_all(filtered, filtered_len, draws_this_iteration, selection, cols, input_buffer);
     }
 
-    // TODO clean up before exec
-    linked_list *path_list = linked_list_get(filtered, selection);
     disable_raw_mode(&orgi_termios);
-    printf("\n");
-    if (path_list) {
-        execute_path(app, path_list->fp);
+    if (!sigint_flag) {
+        // TODO clean up before exec
+        linked_list *path_list = linked_list_get(filtered, selection);
+        printf("\n");
+        if (path_list) {
+            execute_path(app, path_list->fp);
+        }
     }
+
 
     linked_list_free(filtered);
 }
