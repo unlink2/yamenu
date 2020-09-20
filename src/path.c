@@ -14,6 +14,7 @@ file_path* file_path_create(char *path, bool no_desktop_entry, read_file_source 
     fp->terminal = false;
     fp->name = NULL;
     fp->no_show = false;
+    fp->terminal = false;
 
 #ifdef YAMENU_PARSE_DESKTOP_ENTRY
     if (_read_file) {
@@ -32,6 +33,11 @@ file_path* file_path_create(char *path, bool no_desktop_entry, read_file_source 
                     if (no_show) {
                         fp->no_show = (strcmp(no_show, "true") == 0);
                         my_free(no_show);
+                    }
+                    char *terminal = parse_desktop_entry("Terminal=", list);
+                    if (terminal) {
+                        fp->terminal = (strcmp(terminal, "true") == 0);
+                        my_free(terminal);
                     }
 
                     for (size_t i = 0; i < linked_list_size(list); i++) {
