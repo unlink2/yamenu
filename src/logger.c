@@ -14,16 +14,16 @@ void yalogger(yamenu_app *app, log_level level, char *message) {
 void yalogger_var(yamenu_app *app, log_level level, char *message, ...) {
     if (should_log(level, app->log_level)) {
         fprintf(stderr, "[%d] %s", level, message);
+        va_list valist;
+        va_start(valist, message);
+
+        char *next_msg = NULL;
+        while ((next_msg = va_arg(valist, char*)) != NULL) {
+            printf("%s", next_msg);
+        }
+
+        va_end(valist);
+
+        fprintf(stderr, "\n");
     }
-    va_list valist;
-    va_start(valist, message);
-
-    char *next_msg = NULL;
-    while ((next_msg = va_arg(valist, char*)) != NULL) {
-        printf("%s", next_msg);
-    }
-
-    va_end(valist);
-
-    fprintf(stderr, "\n");
 }
