@@ -4,6 +4,8 @@
 #include "include/logger.h"
 #include "include/sysio.h"
 
+#ifndef YAMENU_NO_GTK
+
 enum APP_LIST_COLS {
     PATH_COL,
     META_COL,
@@ -102,3 +104,11 @@ gboolean on_window_main_key_press_event(GtkWidget *widget, GdkEventKey *key, gpo
     }
     return false;
 }
+
+#else
+
+int graphical_interface(int argc, char **argv, yamenu_app *app) {
+    return 0;
+}
+
+#endif

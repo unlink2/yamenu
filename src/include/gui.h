@@ -1,6 +1,8 @@
 #ifndef __GUI_H__
 #define __GUI_H__
 
+#include "data.h"
+
 // uncomment to disable all GTK related code at compile time
 // #define YAMENU_NO_GTK
 #ifndef YAMENU_NO_GTK
@@ -13,10 +15,7 @@
 #define MAIN_WIN_VIEW "/usr/local/bin/view/window_main.glade"
 #endif
 
-#include "data.h"
 #include <gtk/gtk.h>
-
-int graphical_interface(int argc, char **argv, yamenu_app *app);
 
 void on_window_main_destroy();
 
@@ -27,4 +26,7 @@ void on_main_window_application_select(GtkTreeView *tree_view, GtkTreePath *path
 gboolean on_window_main_key_press_event(GtkWidget *widget, GdkEventKey *key, gpointer user_data);
 
 #endif
+
+int graphical_interface(int argc, char **argv, yamenu_app *app);
+
 #endif 
