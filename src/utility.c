@@ -127,7 +127,7 @@ void yamenu_app_init_paths(yamenu_app *app) {
     if (app->input_list) {
         app->path_list = create_path_list(app->input_list, app->separator, app->no_desktop_entry, app->_read_file);
         app->path_list = apply_exclude_list(app->path_list, app->excludes, app->separator);
-    } else {
+    } else if (app->search_path) {
         // if an empty list was provided list the search directory instead
 
         // TODO unit test this
@@ -144,8 +144,12 @@ void yamenu_app_init_paths(yamenu_app *app) {
 
             search_paths = search_paths->next;
         }
-        app->path_list = apply_exclude_list(app->path_list, app->excludes, app->separator);
-        linked_list_quick_sort(app->path_list, 0, linked_list_size(app->path_list)-1, path_list_compare);
+        if (app->path_list) {
+            app->path_list = apply_exclude_list(app->path_list, app->excludes, app->separator);
+            linked_list_quick_sort(app->path_list, 0, linked_list_size(app->path_list)-1, path_list_compare);
+        }
+    } else {
+        die();
     }
 }
 
