@@ -13,7 +13,7 @@ static char args_doc[] = "";
 static struct argp_option options[] = {
     { "separator", 's', "char", OPTION_ARG_OPTIONAL, "Specify list separator (Defaults is ';')"},
     { "paths", 'p', "paths", OPTION_ARG_OPTIONAL, "<separator> terminated list of paths"},
-    { "nox", 'n', 0, OPTION_ARG_OPTIONAL, "Run command line modes"},
+    { "nox", 'n', 0, OPTION_ARG_OPTIONAL, "Switch from GUI mode to CLI mode."},
     { "prefix", 'P', "prefix", OPTION_ARG_OPTIONAL, "Added before every command"},
     { "postfix", 'F', "postfix", OPTION_ARG_OPTIONAL, "Added after every command"},
     { "verbose", 'v', NULL, OPTION_ARG_OPTIONAL, "Enables verbose logging"},
@@ -34,7 +34,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     struct yamenu_app *arguments = state->input;
     switch (key) {
         case 'n':
-            arguments->nox = true;
+            arguments->nox = !arguments->nox;
             break;
         case 'p':
             arguments->input_list = arg;
@@ -92,10 +92,10 @@ static struct argp argp = {
     doc,
     0, 0, 0};
 
-struct yamenu_app parse_args(int argc, char **argv) {
+struct yamenu_app parse_args(int argc, char **argv, bool isatty) {
     struct yamenu_app arguments;
 
-    arguments.nox = YAMENU_NOX_DEFAULT;
+    arguments.nox = isatty;
     arguments.separator = ';';
     arguments.input_list = NULL;
     arguments.path_list = NULL;

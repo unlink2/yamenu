@@ -7,7 +7,7 @@
 #include "include/sysio.h"
 
 int main(int argc, char **argv) {
-    yamenu_app app = parse_args(argc, argv);
+    yamenu_app app = parse_args(argc, argv, getenv("DISPLAY") == NULL);
     yamenu_app_init_paths(&app);
 
     if (app.nox) {

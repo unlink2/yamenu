@@ -6,7 +6,7 @@
 #include <assert.h>
 #include "data.h"
 
-struct yamenu_app parse_args(int argc, char **argv);
+struct yamenu_app parse_args(int argc, char **argv, bool isatty);
 
 // #define DEBUG
 

@@ -41,7 +41,7 @@ static void test_parse_args(void **state) {
             "-Etest;Exclude"
         };
         int argc = 15;
-        struct yamenu_app arguments = parse_args(argc, (char**)argv);
+        struct yamenu_app arguments = parse_args(argc, (char**)argv, YAMENU_NOX_DEFAULT);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
         assert_true(arguments.nox);
@@ -79,7 +79,7 @@ static void test_parse_args(void **state) {
             "--exclude=test;Exclude"
         };
         int argc = 15;
-        struct yamenu_app arguments = parse_args(argc, (char**)argv);
+        struct yamenu_app arguments = parse_args(argc, (char**)argv, YAMENU_NOX_DEFAULT);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
         assert_true(arguments.nox);
@@ -103,7 +103,7 @@ static void test_parse_args(void **state) {
             "./test" // program name
         };
         int argc = 1;
-        struct yamenu_app arguments = parse_args(argc, (char**)argv);
+        struct yamenu_app arguments = parse_args(argc, (char**)argv, YAMENU_NOX_DEFAULT);
 
         assert_null(arguments.input_list);
         assert_false(arguments.nox);
