@@ -270,14 +270,19 @@ int string_sort_helper(char *l1, char *l2) {
 }
 
 char* build_command(yamenu_app *app, file_path *path) {
-    char *to_exec = my_malloc(strlen(app->prefix) + strlen(path->path) + strlen(app->postfix) + 5);
+    char *to_exec = my_malloc(strlen(app->term) + strlen(app->prefix) + strlen(path->path) + strlen(app->postfix) + 8);
 
     char *executable = path->path;
     if (path->executable) {
         executable = path->executable;
     }
+    char *term = "";
+    // if not in shell mode and app is terminal program run term
+    if (!app->nox && path->terminal) {
+        term = app->term;
+    }
 
-    sprintf(to_exec, "%s %s %s", app->prefix, executable, app->postfix);
+    sprintf(to_exec, "%s %s %s %s", term, app->prefix, executable, app->postfix);
     return to_exec;
 }
 

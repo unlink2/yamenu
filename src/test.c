@@ -38,9 +38,10 @@ static void test_parse_args(void **state) {
             "-N",
             "-X100",
             "-Y200",
-            "-Etest;Exclude"
+            "-Etest;Exclude",
+            "-Turxvt -e"
         };
-        int argc = 15;
+        int argc = 16;
         struct yamenu_app arguments = parse_args(argc, (char**)argv, YAMENU_NOX_DEFAULT);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -57,6 +58,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.x_pos, 100);
         assert_int_equal(arguments.y_pos, 200);
         assert_string_equal(arguments.excludes, "test;Exclude");
+        assert_string_equal(arguments.term, "urxvt -e");
 
         yamenu_app_free(&arguments);
     }
@@ -76,9 +78,10 @@ static void test_parse_args(void **state) {
             "--no-desktop-entry",
             "--x-pos=100",
             "--y-pos=200",
-            "--exclude=test;Exclude"
+            "--exclude=test;Exclude",
+            "--term=urxvt -e"
         };
-        int argc = 15;
+        int argc = 16;
         struct yamenu_app arguments = parse_args(argc, (char**)argv, YAMENU_NOX_DEFAULT);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -95,6 +98,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.x_pos, 100);
         assert_int_equal(arguments.y_pos, 200);
         assert_string_equal(arguments.excludes, "test;Exclude");
+        assert_string_equal(arguments.term, "urxvt -e");
 
         yamenu_app_free(&arguments);
     }
@@ -119,6 +123,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.x_pos, DEFAULT_X_Y_POS);
         assert_int_equal(arguments.y_pos, DEFAULT_X_Y_POS);
         assert_null(arguments.excludes);
+        assert_string_equal(arguments.term, "xterm -e");
 
         yamenu_app_free(&arguments);
     }
@@ -364,18 +369,59 @@ static void test_my_malloc_and_free(void **state) {
 }
 
 static void test_build_command(void **state) {
-    yamenu_app app;
-    app.prefix = "prefix for app";
-    app.postfix = "Test postfix";
+    // no shell
+    {
+        yamenu_app app;
+        app.prefix = "prefix for app";
+        app.postfix = "Test postfix";
+        app.term = "xterm -e";
+        app.nox = false;
 
-    file_path *path = file_path_create("/test/path", false, NULL);
+        file_path *path = file_path_create("/test/path", false, NULL);
 
-    char *to_exec = build_command(&app, path);
+        char *to_exec = build_command(&app, path);
 
-    assert_string_equal("prefix for app /test/path Test postfix", to_exec);
+        assert_string_equal(" prefix for app /test/path Test postfix", to_exec);
 
-    file_path_free(path);
-    my_free(to_exec);
+        file_path_free(path);
+        my_free(to_exec);
+    }
+    // shell and not nox
+    {
+        yamenu_app app;
+        app.prefix = "prefix for app";
+        app.postfix = "Test postfix";
+        app.term = "xterm -e";
+        app.nox = false;
+
+        file_path *path = file_path_create("/test/path", false, NULL);
+        path->terminal = true;
+
+        char *to_exec = build_command(&app, path);
+
+        assert_string_equal("xterm -e prefix for app /test/path Test postfix", to_exec);
+
+        file_path_free(path);
+        my_free(to_exec);
+    }
+    // shell mode and nox
+    {
+        yamenu_app app;
+        app.prefix = "prefix for app";
+        app.postfix = "Test postfix";
+        app.term = "xterm -e";
+        app.nox = true;
+
+        file_path *path = file_path_create("/test/path", false, NULL);
+        path->terminal = true;
+
+        char *to_exec = build_command(&app, path);
+
+        assert_string_equal(" prefix for app /test/path Test postfix", to_exec);
+
+        file_path_free(path);
+        my_free(to_exec);
+    }
 }
 
 static void test_should_log(void **state) {

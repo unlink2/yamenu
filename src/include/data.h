@@ -69,6 +69,8 @@ typedef struct yamenu_app {
     bool dry_run;
     bool no_desktop_entry;
 
+    char *term;
+
     // if position of both is -1 winodw will default to center of screen
     int x_pos;
     int y_pos;
