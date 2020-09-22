@@ -26,6 +26,7 @@ static struct argp_option options[] = {
     { "y-pos", 'Y', "xpos", OPTION_ARG_OPTIONAL, "Y position of window"},
     { "exclude", 'E', "excludes", OPTION_ARG_OPTIONAL, "List of files to exclude"},
     { "term", 'T', "term", OPTION_ARG_OPTIONAL, "Set terminal emulator program"},
+    { "cfgext", 'C', "cfg_ext", OPTION_ARG_OPTIONAL, "Configuration file extension (Default is '.desktop')"},
     { 0 }
 };
 
@@ -81,6 +82,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case 'T':
             arguments->term = arg;
             break;
+        case 'C':
+            arguments->cfg_ext = arg;
+            break;
         case ARGP_KEY_ARG:
             return 0;
         default:
@@ -113,6 +117,7 @@ struct yamenu_app parse_args(int argc, char **argv, bool isatty) {
     arguments.dry_run = false;
     arguments.no_desktop_entry = false;
     arguments._read_file = read_file;
+    arguments.cfg_ext = ".desktop";
 
     arguments.term = "xterm -e";
 

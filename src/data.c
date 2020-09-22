@@ -154,8 +154,9 @@ void unescape_str(char *input) {
     }
 }
 
-linked_list* create_path_list(char *input, char separator, bool no_desktop_entry, read_file_source _read_file) {
-    linked_list *head = linked_list_create(file_path_create(input, no_desktop_entry, _read_file));
+linked_list* create_path_list(char *input, char separator, bool no_desktop_entry,
+        read_file_source _read_file, char *cfg_ext) {
+    linked_list *head = linked_list_create(file_path_create(input, no_desktop_entry, _read_file, cfg_ext));
     linked_list *last = head;
 
     const char quote_char = '"';
@@ -169,7 +170,7 @@ linked_list* create_path_list(char *input, char separator, bool no_desktop_entry
             input[0] = '\0';
             // unescape the last input
             unescape_str(last->fp->path);
-            last = linked_list_push(last, file_path_create(input+1, no_desktop_entry, _read_file));
+            last = linked_list_push(last, file_path_create(input+1, no_desktop_entry, _read_file, cfg_ext));
         } else if (input[0] == quote_char && !escaped) {
             quoted = !quoted;
         } else if (input[0] == escape_char) {
@@ -200,7 +201,7 @@ linked_list* apply_exclude_list(linked_list *path_list, char *excludes, char sep
     if (!excludes) {
         return path_list;
     }
-    linked_list *exclude_list = create_path_list(excludes, separator, true, NULL);
+    linked_list *exclude_list = create_path_list(excludes, separator, true, NULL, NULL);
     linked_list *new_list = NULL;
     for (size_t i = 0; i < linked_list_size(path_list); i++) {
         linked_list *current = linked_list_get(path_list, i);

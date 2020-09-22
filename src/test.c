@@ -39,9 +39,10 @@ static void test_parse_args(void **state) {
             "-X100",
             "-Y200",
             "-Etest;Exclude",
-            "-Turxvt -e"
+            "-Turxvt -e",
+            "-C.config"
         };
-        int argc = 16;
+        int argc = 17;
         struct yamenu_app arguments = parse_args(argc, (char**)argv, YAMENU_NOX_DEFAULT);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -59,6 +60,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.y_pos, 200);
         assert_string_equal(arguments.excludes, "test;Exclude");
         assert_string_equal(arguments.term, "urxvt -e");
+        assert_string_equal(arguments.cfg_ext, ".config");
 
         yamenu_app_free(&arguments);
     }
@@ -79,9 +81,10 @@ static void test_parse_args(void **state) {
             "--x-pos=100",
             "--y-pos=200",
             "--exclude=test;Exclude",
-            "--term=urxvt -e"
+            "--term=urxvt -e",
+            "--cfgext=.config"
         };
-        int argc = 16;
+        int argc = 17;
         struct yamenu_app arguments = parse_args(argc, (char**)argv, YAMENU_NOX_DEFAULT);
 
         assert_string_equal(arguments.input_list, "Path1;Path2;Path3");
@@ -99,6 +102,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.y_pos, 200);
         assert_string_equal(arguments.excludes, "test;Exclude");
         assert_string_equal(arguments.term, "urxvt -e");
+        assert_string_equal(arguments.cfg_ext, ".config");
 
         yamenu_app_free(&arguments);
     }
@@ -124,6 +128,7 @@ static void test_parse_args(void **state) {
         assert_int_equal(arguments.y_pos, DEFAULT_X_Y_POS);
         assert_null(arguments.excludes);
         assert_string_equal(arguments.term, "xterm -e");
+        assert_string_equal(arguments.cfg_ext, ".desktop");
 
         yamenu_app_free(&arguments);
     }
@@ -209,7 +214,7 @@ static void test_create_path_list(void **state) {
         "Escaped; split"};
 
     // generate a path list of size 3
-    linked_list *paths = create_path_list(pathlist, ';', true, NULL);
+    linked_list *paths = create_path_list(pathlist, ';', true, NULL, NULL);
 
     assert_int_equal(linked_list_size(paths), 7);
     for (int i = 0; i < linked_list_size(paths); i++) {
@@ -230,7 +235,7 @@ static void test_apply_excludes(void **state) {
         "Escaped; split"};
 
     // generate a path list of size 3
-    linked_list *paths = create_path_list(pathlist, ';', true, NULL);
+    linked_list *paths = create_path_list(pathlist, ';', true, NULL, NULL);
 
     paths = apply_exclude_list(paths, excludelist, ';');
 
@@ -260,9 +265,10 @@ linked_list *read_file_not_found_dummy(char *path) {
 }
 
 static void test_create_path_list_desktop_entry(void **state) {
+    const char *cfg_ext = ".desktop";
     // not a .desktop file
     {
-        file_path *fp = file_path_create("test/path", false, NULL);
+        file_path *fp = file_path_create("test/path", false, NULL, cfg_ext);
         assert_string_equal(fp->path, "test/path");
         assert_null(fp->name);
         assert_null(fp->executable);
@@ -271,7 +277,7 @@ static void test_create_path_list_desktop_entry(void **state) {
         file_path_free(fp);
     }
     {
-        file_path *fp = file_path_create("test/path", true, read_file_dummy);
+        file_path *fp = file_path_create("test/path", true, read_file_dummy, cfg_ext);
         assert_string_equal(fp->path, "test/path");
         assert_null(fp->name);
         assert_null(fp->executable);
@@ -280,7 +286,7 @@ static void test_create_path_list_desktop_entry(void **state) {
         file_path_free(fp);
     }
     {
-        file_path *fp = file_path_create("test/path", false, read_file_dummy);
+        file_path *fp = file_path_create("test/path", false, read_file_dummy, cfg_ext);
         assert_string_equal(fp->path, "test/path");
         assert_null(fp->name);
         assert_null(fp->executable);
@@ -291,7 +297,7 @@ static void test_create_path_list_desktop_entry(void **state) {
 
     // do not read file because no function was provided
     {
-        file_path *fp = file_path_create("test/path.desktop", false, NULL);
+        file_path *fp = file_path_create("test/path.desktop", false, NULL, cfg_ext);
         assert_string_equal(fp->path, "test/path.desktop");
         assert_null(fp->name);
         assert_null(fp->executable);
@@ -301,7 +307,17 @@ static void test_create_path_list_desktop_entry(void **state) {
     }
     // do not read file because of false
     {
-        file_path *fp = file_path_create("test/path.desktop", true, read_file_dummy);
+        file_path *fp = file_path_create("test/path.desktop", true, read_file_dummy, cfg_ext);
+        assert_string_equal(fp->path, "test/path.desktop");
+        assert_null(fp->name);
+        assert_null(fp->executable);
+        assert_false(fp->no_show);
+        assert_false(fp->terminal);
+        file_path_free(fp);
+    }
+    // do not read dummy file because of no extension
+    {
+        file_path *fp = file_path_create("test/path.desktop", false, read_file_dummy, NULL);
         assert_string_equal(fp->path, "test/path.desktop");
         assert_null(fp->name);
         assert_null(fp->executable);
@@ -311,7 +327,7 @@ static void test_create_path_list_desktop_entry(void **state) {
     }
     // read dummy file entry
     {
-        file_path *fp = file_path_create("test/path.desktop", false, read_file_dummy);
+        file_path *fp = file_path_create("test/path.desktop", false, read_file_dummy, cfg_ext);
         assert_string_equal(fp->path, "test/path.desktop");
         assert_string_equal(fp->name, "Hello");
         assert_string_equal(fp->executable, "Test");
@@ -321,7 +337,7 @@ static void test_create_path_list_desktop_entry(void **state) {
     }
     // file not found
     {
-        file_path *fp = file_path_create("test/path.desktop", true, read_file_not_found_dummy);
+        file_path *fp = file_path_create("test/path.desktop", true, read_file_not_found_dummy, cfg_ext);
         assert_string_equal(fp->path, "test/path.desktop");
         assert_null(fp->name);
         assert_null(fp->executable);
@@ -336,7 +352,7 @@ static void test_filter_path_list(void **state) {
     strncpy(pathlist, "Not Path 1;Filter Path 2;Filter Path 3;Not Path 4", 64);
 
     // generate a path list of size 3
-    linked_list *paths = create_path_list(pathlist, ';', true, NULL);
+    linked_list *paths = create_path_list(pathlist, ';', true, NULL, NULL);
 
 
     assert_int_equal(linked_list_size(paths), 4);
@@ -377,7 +393,7 @@ static void test_build_command(void **state) {
         app.term = "xterm -e";
         app.nox = false;
 
-        file_path *path = file_path_create("/test/path", false, NULL);
+        file_path *path = file_path_create("/test/path", false, NULL, NULL);
 
         char *to_exec = build_command(&app, path);
 
@@ -394,7 +410,7 @@ static void test_build_command(void **state) {
         app.term = "xterm -e";
         app.nox = false;
 
-        file_path *path = file_path_create("/test/path", false, NULL);
+        file_path *path = file_path_create("/test/path", false, NULL, NULL);
         path->terminal = true;
 
         char *to_exec = build_command(&app, path);
@@ -412,7 +428,7 @@ static void test_build_command(void **state) {
         app.term = "xterm -e";
         app.nox = true;
 
-        file_path *path = file_path_create("/test/path", false, NULL);
+        file_path *path = file_path_create("/test/path", false, NULL, NULL);
         path->terminal = true;
 
         char *to_exec = build_command(&app, path);

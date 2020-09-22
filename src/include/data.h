@@ -69,6 +69,8 @@ typedef struct yamenu_app {
     bool dry_run;
     bool no_desktop_entry;
 
+    char *cfg_ext; //defaults to .desktop
+
     char *term;
 
     // if position of both is -1 winodw will default to center of screen
@@ -158,7 +160,8 @@ void unescape_str(char *input);
  * Returns:
  *  A linked list of paths
  */
-linked_list* create_path_list(char *input, char separator, bool no_desktop_entry, read_file_source _read_file);
+linked_list* create_path_list(char *input, char separator, bool no_desktop_entry,
+        read_file_source _read_file, char *cfg_ext);
 
 /**
  * Applies an exclude list to a path list. Frees items that are not filtered

@@ -11,7 +11,7 @@
 #include "include/logger.h"
 
 linked_list* create_path_list_from_dir(char *path, bool all, bool only_files, path_filter_fn *filter,
-        bool no_desktop_entry, read_file_source _read_file) {
+        bool no_desktop_entry, read_file_source _read_file, char *cfg_ext) {
     if (!filter) {
         filter = strdup;
     }
@@ -45,10 +45,10 @@ linked_list* create_path_list_from_dir(char *path, bool all, bool only_files, pa
         char *full = path_combine(path, filtered, PATH_SEP);
         my_free(filtered);
         if (!response) {
-            response = linked_list_create(file_path_create(full, no_desktop_entry, _read_file));
+            response = linked_list_create(file_path_create(full, no_desktop_entry, _read_file, cfg_ext));
             last = response;
         } else {
-            last = linked_list_push(last, file_path_create(full, no_desktop_entry, _read_file));
+            last = linked_list_push(last, file_path_create(full, no_desktop_entry, _read_file, cfg_ext));
         }
     }
 
@@ -136,17 +136,18 @@ void yamenu_app_init_paths(yamenu_app *app) {
     // NULL check is required because
     // an empty input may yield NULL
     if (app->input_list) {
-        app->path_list = create_path_list(app->input_list, app->separator, app->no_desktop_entry, app->_read_file);
+        app->path_list = create_path_list(app->input_list, app->separator, app->no_desktop_entry,
+                app->_read_file, app->cfg_ext);
         app->path_list = apply_exclude_list(app->path_list, app->excludes, app->separator);
     } else if (app->search_path) {
         // if an empty list was provided list the search directory instead
 
         // TODO unit test this
         linked_list *search_paths = create_path_list(app->search_path, app->separator,
-                app->no_desktop_entry, app->_read_file);
+                app->no_desktop_entry, app->_read_file, app->cfg_ext);
         while (search_paths) {
             linked_list *next = create_path_list_from_dir(search_paths->fp->path, app->show_hidden,
-                true, app->base_name_only ? basefilename : NULL, app->no_desktop_entry, app->_read_file);
+                true, app->base_name_only ? basefilename : NULL, app->no_desktop_entry, app->_read_file, app->cfg_ext);
             if (!app->path_list) {
                 app->path_list = next;
             } else {

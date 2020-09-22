@@ -34,7 +34,7 @@ typedef linked_list* (*read_file_source)(char *path);
  *  abstraction around file system reads. can be used to provide a custom
  *  source of desktop entires in the future
  */ 
-file_path* file_path_create(char *path, bool no_desktop_entry, read_file_source _read_file);
+file_path* file_path_create(char *path, bool no_desktop_entry, read_file_source _read_file, const char *cfg_ext);
 
 /**
  * Parses a .desktop file
